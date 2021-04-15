@@ -1,0 +1,31 @@
+{
+  "name": "pdfdata",
+  "version": "1.0.0",
+  "description": "Get data from pdf with pure javascript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [],
+  "dependencies": {
+    "pdfjs-dist": "^2.7.570"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.39",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.4",
+    "typescript": "^4.2.4"
+  },
+  "homepage": "https://github.com/lublak/pdfdata#readme",
+  "bugs": {
+    "url": "https://github.com/lublak/pdfdata/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lublak/pdfdata.git"
+  },
+  "author": "lublak",
+  "license": "MIT"
+}
