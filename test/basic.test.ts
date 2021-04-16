@@ -1,6 +1,6 @@
 const PDF_TEST_FILE = './test/basic.pdf';
 
-import { PdfData } from '../src/pdfdata';
+import { PdfData } from '../src';
 import { readFileSync} from 'fs';
 
 describe(`parse ${PDF_TEST_FILE}`, () => {

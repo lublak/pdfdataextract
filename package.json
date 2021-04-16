@@ -1,8 +1,9 @@
 {
   "name": "pdfdata",
   "version": "1.0.0",
-  "description": "Get data from pdf with pure javascript",
+  "description": "Extract data from a pdf with pure javascript",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest"
