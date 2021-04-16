@@ -8,7 +8,7 @@ Extract data from a pdf with pure javascript
 import { PdfData } from 'pdfdataextract';
 import { readFileSync} from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
-PdfData.parse(file_data).then( (data) => {
+PdfData.extract(file_data).then( (data) => {
   
 });
 ```
