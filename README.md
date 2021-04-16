@@ -2,6 +2,10 @@
 
 Extract data from a pdf with pure javascript
 
+## Install
+
+`npm install pdfdataextract`
+
 ## Usage
 
 ```js
@@ -15,7 +19,7 @@ PdfData.extract(file_data).then( (data) => {
 
 ## Test
 
-Just run `npm test`
+`npm test`
 
 ## License
 
