@@ -79,8 +79,8 @@ export class PdfData {
 			cache[ref] = number;
 		}
 		return number;
-	  }
-
+	}
+	
 	private static async parseOutline(pdf_document:PDFDocumentProxy, outlineData:RawPdfOutline[], cache:{ [key:string]:number; }) {
 		const outline:PdfOutline[] = [];
 		for(const o of outlineData) {
@@ -90,21 +90,30 @@ export class PdfData {
 					outline.push({
 						title: o.title,
 						url: o.unsafeUrl,
-						childs: o.items ? await PdfData.parseOutline(pdf_document, o.items as RawPdfOutline[], cache) : undefined
+						childs: o.items ? await PdfData.parseOutline(pdf_document, o.items, cache) : undefined
 					});
 				}
 			} else {
 				outline.push({
 					title: o.title,
 					page: await PdfData.getPageNumber(pdf_document, dest, cache),
-					childs: o.items ? await PdfData.parseOutline(pdf_document, o.items as RawPdfOutline[], cache) : undefined
+					childs: o.items ? await PdfData.parseOutline(pdf_document, o.items, cache) : undefined
 				});
 			}
 		}
 		return outline;
 	}
 
-	static async parse(data: Uint8Array, options: PdfDataOptions = {}) {
+	/**
+	 * Returns the extracted data from a pdf file
+	 * 
+	 * @param {Uint8Array} data The pdf file in the form of byte data
+	 * @param {PdfDataOptions} options The options how to read the data
+	 * @returns {Promise<PdfData>}
+	 * @memberof PdfData
+	 */
+
+	static async parse(data:Uint8Array, options:PdfDataOptions = {}) {
 
 		const pdf_document = await getDocument({
 			data: data,
@@ -129,8 +138,10 @@ export class PdfData {
 			const page = await pdf_document.getPage(i).catch(_ => null);
 			pages[i] = page;
 			const pageText = page == null ? '' : await page.getTextContent().then(textContent => {
+
 				/*
 					transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
+
 					0,1         1,1
 					  -----------
 					  |         |
@@ -141,6 +152,7 @@ export class PdfData {
 					  -----------
 					0,0         1,0
 				*/
+
 				//coordinate based sorting
 				if(sort) textContent.items.sort((e1, e2) => {
 					if(e1.transform[5] < e2.transform[5]) return 1;
@@ -161,6 +173,7 @@ export class PdfData {
 				}
 				return text;
 			}, _ => '');
+
 			text_array.push(pageText);
 		}
 
@@ -168,6 +181,7 @@ export class PdfData {
 		const outline = await this.parseOutline(pdf_document, await pdf_document.getOutline(), {});
 		
 		pdf_document.destroy();
+
 		return new PdfData(pdf_document.numPages, text_array, pdf_document.fingerprint, outline, metaData);
 	}
 }
