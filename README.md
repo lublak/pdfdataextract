@@ -1,5 +1,6 @@
 # pdfdata
-A typescript module to extract text and some infos from a pdf
+
+Extract data from a pdf with pure javascript
 
 ## Usage
 
