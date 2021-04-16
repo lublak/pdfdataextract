@@ -1,5 +1,5 @@
 {
-  "name": "pdfdata",
+  "name": "pdfdataextract",
   "version": "1.0.0",
   "description": "Extract data from a pdf with pure javascript",
   "main": "dist/index.js",
@@ -19,13 +19,13 @@
     "ts-jest": "^26.5.5",
     "typescript": "^4.2.4"
   },
-  "homepage": "https://github.com/lublak/pdfdata#readme",
+  "homepage": "https://github.com/lublak/pdfdataextract#readme",
   "bugs": {
-    "url": "https://github.com/lublak/pdfdata/issues"
+    "url": "https://github.com/lublak/pdfdataextract/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lublak/pdfdata.git"
+    "url": "git+https://github.com/lublak/pdfdataextract.git"
   },
   "author": "lublak",
   "license": "MIT"

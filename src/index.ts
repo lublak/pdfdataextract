@@ -113,7 +113,7 @@ export class PdfData {
 	 * @memberof PdfData
 	 */
 
-	static async parse(data:Uint8Array, options:PdfDataOptions = {}) {
+	static async extract(data:Uint8Array, options:PdfDataOptions = {}) {
 
 		const pdf_document = await getDocument({
 			data: data,

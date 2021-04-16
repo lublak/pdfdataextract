@@ -6,10 +6,10 @@ import { readFileSync} from 'fs';
 describe(`parse ${PDF_TEST_FILE}`, () => {
     const data = readFileSync(PDF_TEST_FILE);
     it('without password should fail', async () => {
-      await expect(PdfData.parse(data)).rejects.toThrow();
+      await expect(PdfData.extract(data)).rejects.toThrow();
     });
     it('extract basic data', async () => {
-      const result = await PdfData.parse(data, {
+      const result = await PdfData.extract(data, {
         password: '123456'
       });
       expect(result.pages).toEqual(2);
