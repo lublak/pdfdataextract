@@ -4,9 +4,13 @@
   "description": "Extract data from a pdf with pure javascript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "npm run build"
   },
   "keywords": [],
   "dependencies": {
