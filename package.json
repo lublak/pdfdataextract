@@ -1,6 +1,6 @@
 {
   "name": "pdfdataextract",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extract data from a pdf with pure javascript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
