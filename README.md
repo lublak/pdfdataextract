@@ -11,10 +11,15 @@ Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmainta
 ## Usage
 
 ```js
-import { PdfData } from 'pdfdataextract';
+import { PdfData, VerbosityLevel } from 'pdfdataextract';
 import { readFileSync} from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
-PdfData.extract(file_data).then( (data) => {
+PdfData.extract(file_data, {
+	password: '12345', // password of the pdf file
+	max: 1, // how many pages should be read at most
+	sort: true, // sort the text by text coordinates
+	verbosity: VerbosityLevel.ERRORS, // set the verbosity level for parsing
+}).then( (data) => {
 	data.pages; // the number of pages
 	data.text; // an array of text pages
 	data.fingerprint; // fingerprint of the pdf document
@@ -28,11 +33,17 @@ PdfData.extract(file_data).then( (data) => {
 
 `npm test`
 
-## TODO
+## TODOs
 
 - [ ] add more tests
 - [ ] clean up code even more
-- [ ] extraction on demand only
+- [ ] allow only specific pages to be read
+
+## Maybe TODOs
+
+- [ ] try to find the line number of the outline
+- [ ] extraction on demand only (only in 2.x.x, api change)
+- [ ] function to convert it as an image
 
 ## License
 

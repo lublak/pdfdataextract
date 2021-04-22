@@ -2,8 +2,6 @@ import { getDocument, VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/es5
 import { Metadata as RawMetadata } from 'pdfjs-dist/types/display/metadata';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/display/api';
 
-export type Metadata = RawMetadata;
-
 export enum VerbosityLevel {
 	ERRORS = RawVerbosityLevel.ERRORS,
 	INFOS = RawVerbosityLevel.INFOS,
@@ -46,6 +44,8 @@ export type PdfOutline = {
 	readonly page:number,
 	readonly childs?: readonly PdfOutline[]
 };
+
+export type Metadata = RawMetadata;
 
 type RawPdfOutline = {
 	title: string;
