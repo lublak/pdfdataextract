@@ -1,11 +1,18 @@
-import { getDocument, VerbosityLevel } from 'pdfjs-dist/es5/build/pdf';
+import { getDocument, VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/es5/build/pdf';
 import { Metadata } from 'pdfjs-dist/types/display/metadata';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/display/api';
+
+export enum VerbosityLevel {
+	ERRORS = RawVerbosityLevel.ERRORS,
+	INFOS = RawVerbosityLevel.INFOS,
+	WARNINGS = RawVerbosityLevel.WARNINGS,
+}
 
 export type PdfDataOptions = {
    password?: string,
    max?: number,
-   sort?: boolean
+   sort?: boolean,
+   verbosity?: VerbosityLevel,
 }
 
 export type Info = Readonly<{
@@ -38,6 +45,8 @@ export type PdfOutline = {
 	readonly childs?: readonly PdfOutline[]
 };
 
+export { Metadata };
+
 type RawPdfOutline = {
 	title: string;
 	bold: boolean;
@@ -50,6 +59,39 @@ type RawPdfOutline = {
 	count: number | undefined;
 	items: any[];
 };
+
+async function getPageNumber(pdf_document:PDFDocumentProxy, pageRef:{ num: number, gen: number }, cache:{ [key:string]:number; }) {
+	const ref = pageRef.gen === 0 ? `${pageRef.num}R` : `${pageRef.num}R${pageRef.gen}`;
+	let number = cache[ref];
+	if(number == null) {
+		number = await pdf_document.getPageIndex(pageRef) as unknown as number;
+		cache[ref] = number;
+	}
+	return number;
+}
+
+async function parseOutline(pdf_document:PDFDocumentProxy, outlineData:RawPdfOutline[], cache:{ [key:string]:number; }) {
+	const outline:PdfOutline[] = [];
+	for(const o of outlineData) {
+		let dest = o.dest ? o.dest[0] as { num: number, gen: number } : null;
+		if(dest == null) {
+			if(o.unsafeUrl != null) {
+				outline.push({
+					title: o.title,
+					url: o.unsafeUrl,
+					childs: o.items ? await parseOutline(pdf_document, o.items, cache) : undefined
+				});
+			}
+		} else {
+			outline.push({
+				title: o.title,
+				page: await getPageNumber(pdf_document, dest, cache),
+				childs: o.items ? await parseOutline(pdf_document, o.items, cache) : undefined
+			});
+		}
+	}
+	return outline;
+}
 
 export class PdfData {
 	readonly pages: number;
@@ -71,39 +113,6 @@ export class PdfData {
 		}
 	}
 
-	private static async getPageNumber(pdf_document:PDFDocumentProxy, pageRef:{ num: number, gen: number }, cache:{ [key:string]:number; }) {
-		const ref = pageRef.gen === 0 ? `${pageRef.num}R` : `${pageRef.num}R${pageRef.gen}`;
-		let number = cache[ref];
-		if(number == null) {
-			number = await pdf_document.getPageIndex(pageRef) as unknown as number;
-			cache[ref] = number;
-		}
-		return number;
-	}
-	
-	private static async parseOutline(pdf_document:PDFDocumentProxy, outlineData:RawPdfOutline[], cache:{ [key:string]:number; }) {
-		const outline:PdfOutline[] = [];
-		for(const o of outlineData) {
-			let dest = o.dest ? o.dest[0] as { num: number, gen: number } : null;
-			if(dest == null) {
-				if(o.unsafeUrl != null) {
-					outline.push({
-						title: o.title,
-						url: o.unsafeUrl,
-						childs: o.items ? await PdfData.parseOutline(pdf_document, o.items, cache) : undefined
-					});
-				}
-			} else {
-				outline.push({
-					title: o.title,
-					page: await PdfData.getPageNumber(pdf_document, dest, cache),
-					childs: o.items ? await PdfData.parseOutline(pdf_document, o.items, cache) : undefined
-				});
-			}
-		}
-		return outline;
-	}
-
 	/**
 	 * Returns the extracted data from a pdf file
 	 * 
@@ -118,7 +127,7 @@ export class PdfData {
 		const pdf_document = await getDocument({
 			data: data,
 			password: options.password,
-			verbosity: VerbosityLevel.ERRORS
+			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
 		}).promise;
 
 		const counter = options.max && options.max > 0 ?
@@ -171,6 +180,7 @@ export class PdfData {
 					}
 					lastLineY = item.transform[5];
 				}
+
 				return text;
 			}, _ => '');
 
@@ -178,8 +188,8 @@ export class PdfData {
 		}
 
 		const metaData = await pdf_document.getMetadata().catch(_ => null);
-		const outline = await this.parseOutline(pdf_document, await pdf_document.getOutline(), {});
-		
+		const outline = await parseOutline(pdf_document, await pdf_document.getOutline(), {});
+
 		pdf_document.destroy();
 
 		return new PdfData(pdf_document.numPages, text_array, pdf_document.fingerprint, outline, metaData);

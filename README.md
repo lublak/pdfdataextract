@@ -15,6 +15,7 @@ import { PdfData } from 'pdfdataextract';
 import { readFileSync} from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
 PdfData.extract(file_data).then( (data) => {
+	data.pages; // the number of pages
 	data.text; // an array of text pages
 	data.fingerprint; // fingerprint of the pdf document
 	data.outline; // outline data of the pdf document
@@ -31,6 +32,7 @@ PdfData.extract(file_data).then( (data) => {
 
 - [ ] add more tests
 - [ ] clean up code even more
+- [ ] extraction on demand only
 
 ## License
 
