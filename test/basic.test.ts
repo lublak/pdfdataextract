@@ -1,6 +1,6 @@
 const PDF_TEST_FILE = './test/basic.pdf';
 
-import { PdfData } from '../src';
+import { PdfData, VerbosityLevel } from '../src';
 import { readFileSync} from 'fs';
 
 describe(`parse ${PDF_TEST_FILE}`, () => {
@@ -10,7 +10,8 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
     });
     it('extract basic data', async () => {
       const result = await PdfData.extract(data, {
-        password: '123456'
+        password: '123456',
+        verbosity: VerbosityLevel.ERRORS,
       });
       expect(result.pages).toEqual(2);
       expect(result.text.length).toEqual(2);
