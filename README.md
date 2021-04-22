@@ -26,6 +26,7 @@ PdfData.extract(file_data, {
 	data.outline; // outline data of the pdf document
 	data.info; // information of the pdf document, such as Author
 	data.metadata; // metadata of the pdf document
+	data.permissions; // permissions for the document
 });
 ```
 

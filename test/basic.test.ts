@@ -18,5 +18,11 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
       const first_page_lines = result.text[0].split('\n');
       expect(first_page_lines.length).toEqual(35);
       expect(first_page_lines[10]).toMatch(/^dapibus mattis/);
+
+      expect(result.permissions).toBeDefined();
+      if(result.permissions) {
+        expect(result.permissions.print).toEqual(true);
+        expect(result.permissions.modifyAnnotations).toEqual(false);
+      }
     });
 });

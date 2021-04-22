@@ -1,4 +1,4 @@
-import { getDocument, VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/es5/build/pdf';
+import { getDocument, VerbosityLevel as RawVerbosityLevel, PermissionFlag } from 'pdfjs-dist/es5/build/pdf';
 import { Metadata as RawMetadata } from 'pdfjs-dist/types/display/metadata';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/display/api';
 
@@ -46,6 +46,17 @@ export type PdfOutline = {
 };
 
 export type Metadata = RawMetadata;
+
+export type Permissions = {
+	readonly assemble:boolean,
+	readonly copy:boolean,
+	readonly fillInteractiveForms:boolean,
+	readonly modifyAnnotations:boolean,
+	readonly modifyContents:boolean,
+	readonly print:boolean,
+	readonly printHQ:boolean,
+	readonly copyForAccessibility:boolean,
+}
 
 type RawPdfOutline = {
 	title: string;
@@ -100,8 +111,9 @@ export class PdfData {
 	readonly outline:readonly PdfOutline[];
 	readonly info?:Info;
 	readonly metadata?:Metadata;
+	readonly permissions?:Permissions;
 
-	private constructor(pages: number, text:string[], fingerprint: string, outline:PdfOutline[], metaData: { info: Object; metadata: Metadata; } | null) {
+	private constructor(pages: number, text:string[], fingerprint: string, outline:PdfOutline[], metaData: { info: Object; metadata: Metadata; } | null, permissions:Permissions | null) {
 		this.pages = pages;
 		this.text = text;
 		this.fingerprint = fingerprint;
@@ -111,6 +123,8 @@ export class PdfData {
 			this.info = metaData.info as Info;
 			this.metadata = metaData.metadata;
 		}
+
+		if(permissions) this.permissions = permissions;
 	}
 
 	/**
@@ -189,8 +203,20 @@ export class PdfData {
 		const metaData = await pdf_document.getMetadata().catch(_ => null);
 		const outline = await parseOutline(pdf_document, await pdf_document.getOutline(), {});
 
+		const permission_flag_array = await pdf_document.getPermissions();
+		const permissions:Permissions | null = permission_flag_array == null ? null : {
+			assemble: permission_flag_array.includes(PermissionFlag.ASSEMBLE),
+			copy: permission_flag_array.includes(PermissionFlag.COPY),
+			copyForAccessibility: permission_flag_array.includes(PermissionFlag.COPY_FOR_ACCESSIBILITY),
+			fillInteractiveForms: permission_flag_array.includes(PermissionFlag.FILL_INTERACTIVE_FORMS),
+			modifyAnnotations: permission_flag_array.includes(PermissionFlag.MODIFY_ANNOTATIONS),
+			print: permission_flag_array.includes(PermissionFlag.PRINT),
+			printHQ: permission_flag_array.includes(PermissionFlag.PRINT_HIGH_QUALITY),
+			modifyContents: permission_flag_array.includes(PermissionFlag.MODIFY_CONTENTS),
+		};
+
 		pdf_document.destroy();
 
-		return new PdfData(pdf_document.numPages, text_array, pdf_document.fingerprint, outline, metaData);
+		return new PdfData(pdf_document.numPages, text_array, pdf_document.fingerprint, outline, metaData, permissions);
 	}
 }
