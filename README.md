@@ -44,6 +44,7 @@ PdfData.extract(file_data, {
 - [ ] try to find the line number of the outline
 - [ ] extraction on demand only (only in 2.x.x, api change)
 - [ ] function to convert it as an image
+- [ ] create pdf-dist-es5 builds (seprated repo)
 
 ## License
 
