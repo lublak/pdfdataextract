@@ -45,8 +45,6 @@ export type PdfOutline = {
 	readonly childs?: readonly PdfOutline[]
 };
 
-export { Metadata };
-
 type RawPdfOutline = {
 	title: string;
 	bold: boolean;
@@ -139,13 +137,12 @@ export class PdfData {
 			: pdf_document.numPages;
 
 		const sort = !!options.sort;
+
 		const text_array = [];
 
-		const pages = [];
 		
 		for (let i = 1; i <= counter; i++) {
 			const page = await pdf_document.getPage(i).catch(_ => null);
-			pages[i] = page;
 			const pageText = page == null ? '' : await page.getTextContent().then(textContent => {
 
 				/*
