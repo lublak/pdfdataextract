@@ -1,6 +1,8 @@
 import { getDocument, VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/es5/build/pdf';
-import { Metadata } from 'pdfjs-dist/types/display/metadata';
+import { Metadata as RawMetadata } from 'pdfjs-dist/types/display/metadata';
 import { PDFDocumentProxy } from 'pdfjs-dist/types/display/api';
+
+export type Metadata = RawMetadata;
 
 export enum VerbosityLevel {
 	ERRORS = RawVerbosityLevel.ERRORS,
