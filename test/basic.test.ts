@@ -1,29 +1,27 @@
 const PDF_TEST_FILE = './test/basic.pdf';
 
-import { PdfDataExtractor, VerbosityLevel } from '../src';
+import { PdfData, VerbosityLevel } from '../src';
 import { readFileSync} from 'fs';
 
 describe(`parse ${PDF_TEST_FILE}`, () => {
 	const buffer = readFileSync(PDF_TEST_FILE);
 	it('without password should fail', async () => {
-		await expect(PdfDataExtractor.get(buffer)).rejects.toThrow();
+		await expect(PdfData.extract(buffer)).rejects.toThrow();
 	});
 	it('extract basic data', async () => {
-		const extractor = await PdfDataExtractor.get(buffer, {
+		const data = await PdfData.extract(buffer, {
 			password: '123456',
 			verbosity: VerbosityLevel.ERRORS,
 		});
-		expect(extractor.pages).toEqual(2);
-		const text = await extractor.getText();
-		expect(text.length).toEqual(2);
-		const first_page_lines = text[0].split('\n');
+		expect(data.pages).toEqual(2);
+		expect(data.text.length).toEqual(2);
+		const first_page_lines = data.text[0].split('\n');
 		expect(first_page_lines.length).toEqual(35);
 		expect(first_page_lines[10]).toMatch(/^dapibus mattis/);
-		const permissions = await extractor.getPermissions();
-		expect(permissions).toBeDefined();
-		if(permissions) {
-			expect(permissions.print).toEqual(true);
-			expect(permissions.modifyAnnotations).toEqual(false);
+		expect(data.permissions).toBeDefined();
+		if(data.permissions) {
+			expect(data.permissions.print).toEqual(true);
+			expect(data.permissions.modifyAnnotations).toEqual(false);
 		}
 	});
 });
