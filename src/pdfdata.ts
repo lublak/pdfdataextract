@@ -8,54 +8,60 @@ export type PdfDataOptions = {
    verbosity?: VerbosityLevel,
 }
 
+/**
+ *
+ */
 export class PdfData {
 	readonly pages: number;
 	readonly text: readonly string[];
-	readonly fingerprint:string;
-	readonly outline:readonly Outline[];
-	readonly info?:Info;
-	readonly metadata?:Metadata;
-	readonly permissions?:Permissions;
+	readonly fingerprint: string;
+	readonly outline: readonly Outline[];
+	readonly info?: Info;
+	readonly metadata?: Metadata;
+	readonly permissions?: Permissions;
 
-	private constructor(pages: number, text:string[], fingerprint: string, outline:Outline[], metaData: { info: Object; metadata: Metadata; } | null, permissions:Permissions | null) {
+	/**
+	 * @param pages
+	 * @param text
+	 * @param fingerprint
+	 * @param outline
+	 * @param metaData
+	 * @param permissions
+	 */
+	private constructor(pages: number, text: string[], fingerprint: string, outline: Outline[], metaData: { info: Info; metadata: Metadata; } | null, permissions: Permissions | null) {
 		this.pages = pages;
 		this.text = text;
 		this.fingerprint = fingerprint;
 		this.outline = outline;
 
-		if(metaData != null) {
-			this.info = metaData.info as Info;
+		if (metaData != null) {
+			this.info = metaData.info;
 			this.metadata = metaData.metadata;
 		}
 
-		if(permissions) this.permissions = permissions;
+		if (permissions) this.permissions = permissions;
 	}
 
 	/**
-	 * Returns the extracted data from a pdf file
-	 * 
-	 * @param {Uint8Array} data The pdf file in the form of byte data
-	 * @param {PdfDataOptions} options The options how to read the data
-	 * @returns {Promise<PdfData>}
-	 * @memberof PdfData
+	 * @param data
+	 * @param options
 	 */
+	static async extract(data: Uint8Array, options: PdfDataOptions = {}): Promise<PdfData> {
+		const extractor: PdfDataExtractor = await PdfDataExtractor.get(data, {
+			password: options.password,
+			verbosity: options.verbosity,
+		});
 
-	static async extract(data:Uint8Array, options:PdfDataOptions = {}) {
-		const extractor = await PdfDataExtractor.get(data, {
-            password: options.password,
-            verbosity: options.verbosity,
-        });
+		const pdfdata: PdfData = new PdfData(
+			extractor.pages,
+			await extractor.getText(options.max, options.sort),
+			extractor.fingerprint,
+			await extractor.getOutline(),
+			null, 
+			await extractor.getPermissions()
+		);
 
-        const pdfdata = new PdfData(
-            extractor.pages,
-            await extractor.getText(options.max, options.sort),
-            extractor.fingerprint,
-            await extractor.getOutline(),
-            null, 
-            await extractor.getPermissions()
-        );
-
-        extractor.close();
-        return pdfdata;
-    }
+		extractor.close();
+		return pdfdata;
+	}
 }

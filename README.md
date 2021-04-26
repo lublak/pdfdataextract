@@ -1,5 +1,7 @@
 # pdfdataextract
 
+![building status](https://github.com/lublak/pdfdataextract/actions/workflows/node.js.yml/badge.svg)
+
 Extract data from a pdf with pure javascript.
 
 Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmaintained.
@@ -68,7 +70,6 @@ PdfDataExtractor.get(file_data, {
 ## TODOs
 
 - [ ] add more tests
-- [ ] clean up code even more
 - [ ] allow only specific pages to be read
 
 ## Maybe TODOs
