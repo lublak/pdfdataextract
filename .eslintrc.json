@@ -19,8 +19,7 @@
     ],
     "settings": {
         "jsdoc": {
-            "mode": "typescript",
-            "ignorePrivate": true
+            "mode": "typescript"
         }
     },
     "rules": {
@@ -156,8 +155,11 @@
                     "ClassExpression": true,
                     "FunctionDeclaration": true,
                     "FunctionExpression": true,
-                    "MethodDefinition": true
-                }
+                    "MethodDefinition": false
+                },
+                "contexts": [
+                    "MethodDefinition:not([accessibility=\"private\"]) > FunctionExpression"
+                ]
             }
         ],
         "jsdoc/require-param": "error",
