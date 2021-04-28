@@ -3,7 +3,17 @@ import { PDFDocumentProxy, PDFPageProxy, TextContent, TextItem } from 'pdfjs-dis
 import { VerbosityLevel, Permissions, Outline, Info, Metadata } from './types';
 
 export type PdfDataExtractorOptions = {
+	/**
+	 * password for a password-protected PDF
+	 * 
+	 * @type {string}
+	 */
 	password?: string,
+	/**
+	 * the logging level
+	 * 
+	 * @type {VerbosityLevel}
+	 */
 	verbosity?: VerbosityLevel,
 }
 
@@ -17,7 +27,7 @@ type RawOutline = {
 	unsafeUrl: string | undefined;
 	newWindow: boolean | undefined;
 	count: number | undefined;
-	items: unknown[];
+	items: RawOutline[] | undefined;
 };
 
 async function getPageNumber(pdf_document: PDFDocumentProxy, pageRef: { num: number, gen: number }, cache: { [key: string]: number; }) {
@@ -54,7 +64,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 }
 
 /**
- *
+ * the extractor for the data of the pdf
  */
 export class PdfDataExtractor {
 	private readonly pdf_document: PDFDocumentProxy;
@@ -64,8 +74,11 @@ export class PdfDataExtractor {
 	}
 
 	/**
-	 * @param data
-	 * @param options
+	 * get the extractor for the data
+	 * 
+	 * @param {Uint8Array} data - the binary data file
+	 * @param {PdfDataExtractorOptions} [options={}] - the options on how to open the data in the extractor
+	 * @returns {Promise<PdfDataExtractor>} a promise that is resolved with a {PdfDataExtractor} object to pull the extracted data from
 	 */
 	static async get(data: Uint8Array, options: PdfDataExtractorOptions = {}): Promise<PdfDataExtractor> {
 		const pdf_document: PDFDocumentProxy = await getDocument({
@@ -77,23 +90,28 @@ export class PdfDataExtractor {
 		return new PdfDataExtractor(pdf_document);
 	}
 
-	
 	/**
+	 * get the fingerprint
 	 * 
+	 * @returns {string} the fingerprint
 	 */
 	get fingerprint(): string {
 		return this.pdf_document.fingerprint;
 	}
 
 	/**
-	 *
+	 * get the number of pages
+	 * 
+	 * @returns {string} the number of pages
 	 */
 	get pages(): number {
 		return this.pdf_document.numPages;
 	}
 	
 	/**
+	 * get the permission flags
 	 *
+	 * @returns {Promise<Permissions | null>} a promise that is resolved with a {Permissions | null} object that contains the permission flags for the PDF
 	 */
 	async getPermissions(): Promise<Permissions | null> {
 		const permission_flag_array: number[] | null = await this.pdf_document.getPermissions();
@@ -110,8 +128,11 @@ export class PdfDataExtractor {
 	}
 
 	/**
-	 * @param max
-	 * @param sort
+	 * get the text
+	 * 
+	 * @param {number} [max] - the number of pages to be read
+	 * @param {boolean} [sort] - sort the text by text coordinates
+	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
 	async getText(max?: number, sort?: boolean): Promise<string[]> {
 		const counter: number = max && max > 0 ?
@@ -151,7 +172,7 @@ export class PdfDataExtractor {
 					else return 0;
 				});
 				
-				let lastLineY: number, text: string = '';
+				let lastLineY: number | undefined, text: string = '';
 				for (const item of textContent.items) {
 					if (!lastLineY || lastLineY == item.transform[5]) {
 						text += item.str;
@@ -171,23 +192,29 @@ export class PdfDataExtractor {
 	}
 
 	/**
+	 * get the outline/bookmarks
 	 *
+	 * @returns {Promise<Outline[]>} a promise that is resolved with a {Outline[]} array with information from the tree outline
 	 */
 	async getOutline(): Promise<Outline[]> {
 		return parseOutline(this.pdf_document, await this.pdf_document.getOutline(), {});
 	}
 
 	/**
+	 * get the metadata
 	 *
+	 * @returns {Promise<{ info: Info; metadata: Metadata; } | null>} a promise that is resolved with a {{ info: Info; metadata: Metadata; } | null} object with information from the metadata section
 	 */
 	async getMetadata(): Promise<{ info: Info; metadata: Metadata; } | null> {
 		return await this.pdf_document.getMetadata().catch(() => null) as { info: Info; metadata: Metadata; } | null;
 	}
 
 	/**
+	 * close the extractor
 	 *
+	 * @returns {Promise<void>} a promise that is resolved when destruction is completed
 	 */
-	async close(): Promise<unknown> {
+	async close(): Promise<void> {
 		return this.pdf_document.destroy();
 	}
 }
