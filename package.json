@@ -13,7 +13,19 @@
     "test": "jest",
     "prepare": "npm run build"
   },
-  "keywords": [],
+  "keywords": [
+    "pdf",
+    "pdf.js",
+    "pdfjs",
+    "parse",
+    "parser",
+    "json",
+    "text",
+    "data",
+    "crawler",
+    "extract",
+    "extractor"
+  ],
   "dependencies": {
     "pdfjs-dist": "^2.7.570"
   },
