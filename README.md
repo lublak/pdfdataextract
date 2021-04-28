@@ -1,6 +1,8 @@
 # pdfdataextract
 
-![building status](https://github.com/lublak/pdfdataextract/actions/workflows/node.js.yml/badge.svg)
+[![version](https://img.shields.io/npm/v/pdfdataextract.svg)](https://www.npmjs.org/package/pdfdataextract)
+[![downloads](https://img.shields.io/npm/dt/pdfdataextract.svg)](https://www.npmjs.org/package/pdfdataextract)
+[![status](https://github.com/lublak/pdfdataextract/actions/workflows/node.js.yml/badge.svg)](https://github.com/lublak/pdfdataextract/actions/workflows/node.js.yml)
 
 Extract data from a pdf with pure javascript.
 
