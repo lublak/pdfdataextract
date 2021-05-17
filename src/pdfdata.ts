@@ -2,30 +2,40 @@ import { PdfDataExtractor } from './pdfdataextractor';
 import { VerbosityLevel, Permissions, Outline, Info, Metadata } from './types';
 
 export type PdfDataOptions = {
-   /**
-    * password for a password-protected PDF
-    * 
-    * @type {string}
-    */
-   password?: string,
-   /**
-    * the number of pages to be read
-    * 
-    * @type {number}
-    */
-   max?: number,
-   /**
-    * sort the text by text coordinates
-    * 
-    * @type {boolean}
-    */
-   sort?: boolean,
-   /**
-    * the logging level
-    * 
-    * @type {VerbosityLevel}
-    */
-   verbosity?: VerbosityLevel,
+	/**
+	 * password for a password-protected PDF
+	 * 
+	 * @type {string}
+	 */
+	password?: string,
+	/**
+	 * the number of pages to be read
+	 *
+	 * @deprecated use pages instead
+	 * 
+	 * @type {number}
+	 */
+	max?: number,
+	/**
+	 * sort the text by text coordinates
+	 * 
+	 * @type {boolean}
+	 */
+	sort?: boolean,
+	/**
+	 * the logging level
+	 * 
+	 * @type {VerbosityLevel}
+	 */
+	verbosity?: VerbosityLevel,
+	/**
+	 * can either be the number of pages to be read,
+	 * a number array with the exact pages (sorted by page number)
+	 * or a filter function (return true to parse the page)
+	 * 
+	 * @type {number|number[]|((pageNumber: number) => boolean)}
+	 */
+	pages?: number | number[] | ((pageNumber: number) => boolean),
 }
 
 /**
@@ -112,9 +122,12 @@ export class PdfData {
 			verbosity: options.verbosity,
 		});
 
+		// eslint-disable-next-line deprecation/deprecation
+		const pages: number | number[] | ((pageNumber: number) => boolean) | undefined = options.pages ? options.pages : options.max;
+
 		const pdfdata: PdfData = new PdfData(
 			extractor.pages,
-			await extractor.getText(options.max, options.sort),
+			await extractor.getText(pages, options.sort),
 			extractor.fingerprint,
 			await extractor.getOutline(),
 			await extractor.getMetadata(), 

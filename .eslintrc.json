@@ -15,6 +15,7 @@
     },
     "plugins": [
         "@typescript-eslint",
+        "deprecation",
         "jsdoc"
     ],
     "settings": {
@@ -46,6 +47,7 @@
             "always"
         ],
         "no-console": "error",
+        "deprecation/deprecation": "error",
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
@@ -130,7 +132,12 @@
         "jsdoc/check-access": "error",
         "jsdoc/check-alignment": "error",
         "jsdoc/check-examples": "off",
-        "jsdoc/check-indentation": "error",
+        "jsdoc/check-indentation": [
+            "error",
+            {
+                "excludeTags": ["param"]
+            }
+        ],
         "jsdoc/check-line-alignment": "error",
         "jsdoc/check-param-names": "error",
         "jsdoc/check-property-names": "error",
@@ -143,7 +150,7 @@
         "jsdoc/match-description": [
             "error",
             {
-                "matchDescription": "^[a-zA-Z0-9_\\- /\\\\()[\\]{}=?!:.,;*+~#'\"%&<>|]+$",
+                "matchDescription": "^[a-zA-Z0-9_\\- /\\\\()[\\]{}=?!:.,;*+~#'\"%&<>|\n]+$",
                 "contexts": [
                     "any"
                 ]

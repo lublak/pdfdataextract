@@ -49,6 +49,10 @@ PdfDataExtractor.get(file_data, {
 		// an array of text pages (only one page and sorted)
 	});
 
+	extractor.getText([2]).then((text) => {
+		// an array of text pages (only the second page)
+	});
+
 	extractor.getOutline().then((text) => {
 		// outline data of the pdf document
 	});
@@ -68,10 +72,6 @@ PdfDataExtractor.get(file_data, {
 ## Test
 
 `npm test`
-
-## TODOs
-
-- [ ] allow only specific pages to be read
 
 ## Maybe TODOs
 

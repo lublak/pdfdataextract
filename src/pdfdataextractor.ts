@@ -63,6 +63,46 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 	return outline;
 }
 
+async function parsePage(page: PDFPageProxy, sort?: boolean) {
+	return page.getTextContent().then((textContent: TextContent)  => {
+
+		/*
+			transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
+
+			0,1         1,1
+				-----------
+				|         |
+				|         |
+				|   pdf   |
+				|         |
+				|         |
+				-----------
+			0,0         1,0
+		*/
+
+		//coordinate based sorting
+		if (sort) textContent.items.sort((e1: TextItem, e2: TextItem) => {
+			if (e1.transform[5] < e2.transform[5]) return 1;
+			else if (e1.transform[5] > e2.transform[5]) return -1;
+			else if (e1.transform[4] < e2.transform[4]) return -1;
+			else if (e1.transform[4] > e2.transform[4]) return 1;
+			else return 0;
+		});
+		
+		let lastLineY: number | undefined, text: string = '';
+		for (const item of textContent.items) {
+			if (!lastLineY || lastLineY == item.transform[5]) {
+				text += item.str;
+			} else {
+				text += '\n' + item.str;
+			}
+			lastLineY = item.transform[5];
+		}
+
+		return text;
+	}, () => '');
+}
+
 /**
  * the extractor for the data of the pdf
  */
@@ -85,6 +125,7 @@ export class PdfDataExtractor {
 			data: data,
 			password: options.password,
 			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
+			isEvalSupported: false,
 		}).promise;
 
 		return new PdfDataExtractor(pdf_document);
@@ -130,62 +171,43 @@ export class PdfDataExtractor {
 	/**
 	 * get the text
 	 * 
-	 * @param {number} [max] - the number of pages to be read
+	 * @param {number|number[]|((pageNumber: number) => boolean)} [pages] - can either be the number of pages to be read,
+	 *     a number array with the specific pages (sorted by page number)
+	 *     or a filter function (return true to parse the page)
 	 * @param {boolean} [sort] - sort the text by text coordinates
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
-	async getText(max?: number, sort?: boolean): Promise<string[]> {
-		const counter: number = max && max > 0 ?
-			(
-				max > this.pdf_document.numPages ?
-					this.pdf_document.numPages
-					: max
-			)
-			: this.pdf_document.numPages;
-
+	async getText(pages?: number | number[] | ((pageNumber: number) => boolean), sort?: boolean): Promise<string[]> {
 		const text_array: string[] = [];
-		
-		for (let i: number = 1; i <= counter; i++) {
-			const page: PDFPageProxy | null = await this.pdf_document.getPage(i).catch(() => null);
-			const pageText: string = page == null ? '' : await page.getTextContent().then((textContent: TextContent)  => {
+		const numPages: number = this.pdf_document.numPages;
 
-				/*
-					transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
-
-					0,1         1,1
-					  -----------
-					  |         |
-					  |         |
-					  |   pdf   |
-					  |         |
-					  |         |
-					  -----------
-					0,0         1,0
-				*/
-
-				//coordinate based sorting
-				if (sort) textContent.items.sort((e1: TextItem, e2: TextItem) => {
-					if (e1.transform[5] < e2.transform[5]) return 1;
-					else if (e1.transform[5] > e2.transform[5]) return -1;
-					else if (e1.transform[4] < e2.transform[4]) return -1;
-					else if (e1.transform[4] > e2.transform[4]) return 1;
-					else return 0;
-				});
-				
-				let lastLineY: number | undefined, text: string = '';
-				for (const item of textContent.items) {
-					if (!lastLineY || lastLineY == item.transform[5]) {
-						text += item.str;
-					} else {
-						text += '\n' + item.str;
-					}
-					lastLineY = item.transform[5];
+		if (typeof(pages) === 'undefined') {
+			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
+				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
+				text_array.push(page == null ? '' : await parsePage(page, sort));
+			}
+		} else if (typeof(pages) === 'number') {
+			const counter: number = pages > numPages ? numPages : pages;
+			
+			for (let pageNumber: number = 1; pageNumber <= counter; pageNumber++) {
+				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
+				text_array.push(page == null ? '' : await parsePage(page, sort));
+			}
+		} else if (typeof(pages) == 'function') {
+			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
+				if (pages(pageNumber)) {
+					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
+					text_array.push(page == null ? '' : await parsePage(page, sort));
 				}
-
-				return text;
-			}, () => '');
-
-			text_array.push(pageText);
+			}
+		} else {
+			pages = pages.sort((a: number, b: number) => a - b);
+			for (const pageNumber of pages) {
+				if (pageNumber <= numPages) {
+					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
+					text_array.push(page == null ? '' : await parsePage(page, sort));
+				}
+			}
 		}
 
 		return text_array;
