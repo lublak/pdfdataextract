@@ -16,7 +16,7 @@ Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmainta
 
 ```ts
 import { PdfData, VerbosityLevel } from 'pdfdataextract';
-import { readFileSync} from 'fs';
+import { readFileSync } from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
 PdfData.extract(file_data, {
 	password: '123456', // password of the pdf file
@@ -36,7 +36,7 @@ PdfData.extract(file_data, {
 
 ```ts
 import { PdfDataExtractor, VerbosityLevel } from 'pdfdataextract';
-import { readFileSync} from 'fs';
+import { readFileSync } from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
 PdfDataExtractor.get(file_data, {
 	password: '123456', // password of the pdf file
