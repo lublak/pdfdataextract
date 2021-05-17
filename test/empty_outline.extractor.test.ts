@@ -1,4 +1,4 @@
-const PDF_TEST_FILE = './test/without_outline.pdf';
+const PDF_TEST_FILE = './test/empty_outline.pdf';
 
 import { PdfDataExtractor, VerbosityLevel } from '../src';
 import { readFileSync} from 'fs';
