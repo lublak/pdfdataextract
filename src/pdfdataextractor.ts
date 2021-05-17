@@ -196,8 +196,10 @@ export class PdfDataExtractor {
 	 *
 	 * @returns {Promise<Outline[]>} a promise that is resolved with a {Outline[]} array with information from the tree outline
 	 */
-	async getOutline(): Promise<Outline[]> {
-		return parseOutline(this.pdf_document, await this.pdf_document.getOutline(), {});
+	async getOutline(): Promise<Outline[] | null> {
+		const outlineData = await this.pdf_document.getOutline();
+		if (outlineData == null) return null;
+		return parseOutline(this.pdf_document, outlineData, {});
 	}
 
 	/**

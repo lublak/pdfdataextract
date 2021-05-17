@@ -57,9 +57,9 @@ export class PdfData {
 	 * the outline/bookmarks
 	 * 
 	 * @readonly
-	 * @type {Outline[]}
+	 * @type {Outline[] | undefined}
 	 */
-	readonly outline: readonly Outline[];
+	readonly outline?: readonly Outline[];
 	/**
 	 * the informations/description
 	 * 
@@ -82,11 +82,14 @@ export class PdfData {
 	 */
 	readonly permissions?: Permissions;
 
-	private constructor(pages: number, text: string[], fingerprint: string, outline: Outline[], metaData: { info: Info; metadata: Metadata; } | null, permissions: Permissions | null) {
+	private constructor(pages: number, text: string[], fingerprint: string, outline: Outline[] | null, metaData: { info: Info; metadata: Metadata; } | null, permissions: Permissions | null) {
 		this.pages = pages;
 		this.text = text;
 		this.fingerprint = fingerprint;
-		this.outline = outline;
+		
+		if (outline != null) {
+			this.outline = outline;
+		}
 
 		if (metaData != null) {
 			this.info = metaData.info;

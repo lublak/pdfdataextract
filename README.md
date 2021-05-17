@@ -71,13 +71,11 @@ PdfDataExtractor.get(file_data, {
 
 ## TODOs
 
-- [ ] add more tests
 - [ ] allow only specific pages to be read
 
 ## Maybe TODOs
 
 - [ ] try to find the line number of the outline
-- [ ] function to convert it as an image
 - [ ] create pdf-dist-es5 builds (seprated repo)
 
 ## License
