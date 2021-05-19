@@ -70,13 +70,13 @@ async function parsePage(page: PDFPageProxy, sort?: boolean) {
 			transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
 
 			0,1         1,1
-				-----------
-				|         |
-				|         |
-				|   pdf   |
-				|         |
-				|         |
-				-----------
+			  -----------
+			  |         |
+			  |         |
+			  |   pdf   |
+			  |         |
+			  |         |
+			  -----------
 			0,0         1,0
 		*/
 
