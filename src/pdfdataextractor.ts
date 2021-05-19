@@ -201,7 +201,7 @@ export class PdfDataExtractor {
 				}
 			}
 		} else {
-			pages = pages.filter((value, index, self) => self.indexOf(value) === index).sort((a: number, b: number) => a - b);
+			pages = pages.filter((value: number, index: number, self: number[]) => self.indexOf(value) === index).sort((a: number, b: number) => a - b);
 			for (const pageNumber of pages) {
 				if (pageNumber <= numPages) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
