@@ -181,7 +181,7 @@ export class PdfDataExtractor {
 		const text_array: string[] = [];
 		const numPages: number = this.pdf_document.numPages;
 
-		if (typeof(pages) === 'undefined') {
+		if (pages === undefined) {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
 				text_array.push(page == null ? '' : await parsePage(page, sort));
@@ -201,7 +201,7 @@ export class PdfDataExtractor {
 				}
 			}
 		} else {
-			pages = pages.sort((a: number, b: number) => a - b);
+			pages = pages.filter((value, index, self) => self.indexOf(value) === index).sort((a: number, b: number) => a - b);
 			for (const pageNumber of pages) {
 				if (pageNumber <= numPages) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);

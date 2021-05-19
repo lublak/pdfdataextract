@@ -21,5 +21,10 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
 			verbosity: VerbosityLevel.ERRORS,
 			pages: (pageNumber) => pageNumber == 7
 		})).text).toEqual(['7']);
+
+		expect((await PdfData.extract(buffer, {
+			verbosity: VerbosityLevel.ERRORS,
+			pages: [5, 9, 5]
+		})).text).toEqual(['5', '9']);
 	});
 });
