@@ -1,4 +1,4 @@
-import { VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/es5/build/pdf';
+import { VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/legacy/build/pdf';
 
 export enum VerbosityLevel {
 	/**

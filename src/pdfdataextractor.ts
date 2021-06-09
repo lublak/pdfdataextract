@@ -1,4 +1,4 @@
-import { getDocument, PermissionFlag } from 'pdfjs-dist/es5/build/pdf';
+import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFDocumentProxy, PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
 import { VerbosityLevel, Permissions, Outline, Info, Metadata } from './types';
 

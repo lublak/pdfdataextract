@@ -27,7 +27,7 @@
     "extractor"
   ],
   "dependencies": {
-    "pdfjs-dist": "^2.7.570"
+    "pdfjs-dist": "^2.8.335"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
