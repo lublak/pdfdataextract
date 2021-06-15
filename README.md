@@ -18,11 +18,22 @@ Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmainta
 import { PdfData, VerbosityLevel } from 'pdfdataextract';
 import { readFileSync } from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
+
+// all options are optional
 PdfData.extract(file_data, {
 	password: '123456', // password of the pdf file
 	pages: 1, // how many pages should be read at most
 	sort: true, // sort the text by text coordinates
 	verbosity: VerbosityLevel.ERRORS, // set the verbosity level for parsing
+	get: { // enable or disable data extraction (all are optional and enabled by default)
+		pages: true, // get number of pages
+		text: true, // get text of each page
+		fingerprint: true, // get fingerprint
+		outline: true, // get outline
+		metadata: true, // get metadata
+		info: true, // get info
+		permissions: true, // get permissions
+	},
 }).then((data) => {
 	data.pages; // the number of pages
 	data.text; // an array of text pages
@@ -38,6 +49,8 @@ PdfData.extract(file_data, {
 import { PdfDataExtractor, VerbosityLevel } from 'pdfdataextract';
 import { readFileSync } from 'fs';
 const file_data = readFileSync('some_pdf_file.pdf');
+
+// all options are optional
 PdfDataExtractor.get(file_data, {
 	password: '123456', // password of the pdf file
 	verbosity: VerbosityLevel.ERRORS, // set the verbosity level for parsing
