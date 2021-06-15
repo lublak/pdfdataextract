@@ -66,11 +66,11 @@ PdfDataExtractor.get(file_data, {
 		// an array of text pages (only the second page)
 	});
 
-	extractor.getOutline().then((text) => {
+	extractor.getOutline().then((outline) => {
 		// outline data of the pdf document
 	});
 	
-	extractor.getMetadata().then((text) => {
+	extractor.getMetadata().then((metadata) => {
 		// metadata of the pdf document
 	});
 
