@@ -15,7 +15,7 @@ export enum VerbosityLevel {
 	WARNINGS = RawVerbosityLevel.WARNINGS,
 }
 
-export type Permissions = {
+export interface Permissions {
 	/**
 	 * allow to assemble
 	 * 
@@ -101,7 +101,7 @@ export interface Metadata {
 	has(name: string): boolean;
 }
 
-export type Name = {
+export interface Name {
 	/**
 	 * the name
 	 * 
@@ -110,7 +110,7 @@ export type Name = {
 	readonly name: string
 };
 
-export type Info = {
+export interface Info {
 	/**
 	 * the title
 	 * 
@@ -219,48 +219,117 @@ export type Info = {
 	readonly [key: string]: string | number | boolean | Name | undefined,
 }
 
-export type Outline = {
-	/**
-	 * the title
-	 * 
-	 * @readonly
-	 * @type {string}
-	 */
-	readonly title: string,
-	/**
-	 * the url to which the outline points
-	 * 
-	 * @readonly
-	 * @type {string}
-	 */
-	readonly url: string,
-	/**
-	 * the childrens
-	 * 
-	 * @readonly
-	 * @type {ReadonlyArray<Outline> | undefined}
-	 */
-	readonly childs?: readonly Outline[],
-} | {
-	/**
-	 * the title
-	 * 
-	 * @readonly
-	 * @type {string}
-	 */
-	readonly title: string,
-	/**
-	 * the page to which the outline points
-	 * 
-	 * @readonly
-	 * @type {number}
-	 */
-	readonly page: number,
-	/**
-	 * the childrens
-	 * 
-	 * @readonly
-	 * @type {ReadonlyArray<Outline> | undefined}
-	 */
-	readonly childs?: readonly Outline[],
+export class BaseOutline {
+	constructor(
+		/**
+		 * the title
+		 * 
+		 * @readonly
+		 * @type {string}
+		 */
+		 readonly title: string,
+		/**
+		 * the childrens
+		 * 
+		 * @readonly
+		 * @type {ReadonlyArray<Outline> | undefined}
+		 */
+		 readonly childs?: readonly Outline[],
+	) {}
 }
+
+export class UrlOutline extends BaseOutline {
+	constructor(
+		/**
+		 * the title
+		 * 
+		 * @readonly
+		 * @type {string}
+		 */
+		readonly title: string,
+		/**
+		 * the url to which the outline points
+		 * 
+		 * @readonly
+		 * @type {string}
+		 */
+		readonly url: string,
+		/**
+		 * if the url is absolute
+		 * 
+		 * @readonly
+		 * @type {boolean}
+		 */
+		readonly absolute: boolean,
+		/**
+		 * the childrens
+		 * 
+		 * @readonly
+		 * @type {ReadonlyArray<Outline> | undefined}
+		 */
+		readonly childs?: readonly Outline[],
+	) {
+		super(title, childs);
+	}
+};
+
+export class PageNumberOutline {
+	constructor(
+		/**
+		 * the title
+		 * 
+		 * @readonly
+		 * @type {string}
+		 */
+		readonly title: string,
+		/**
+			* the page to which the outline points
+			* 
+			* @readonly
+			* @type {number}
+			*/
+		readonly page: number,
+		/**
+			* the childrens
+			* 
+			* @readonly
+			* @type {ReadonlyArray<Outline> | undefined}
+			*/
+		readonly childs?: readonly Outline[],
+	) {}
+}
+
+export class PdfReferenceOutline {
+	constructor(
+		/**
+		 * the title
+		 * 
+		 * @readonly
+		 * @type {string}
+		 */
+		readonly title: string,
+		/**
+		 * the url to which the outline points
+		 * 
+		 * @readonly
+		 * @type {string}
+		 */
+		 readonly url: string,
+		/**
+			* the page to which the outline points
+			* 
+			* @readonly
+			* @type {number}
+			*/
+		readonly page?: number,
+		/**
+			* the childrens
+			* 
+			* @readonly
+			* @type {ReadonlyArray<Outline> | undefined}
+			*/
+		readonly childs?: readonly Outline[],
+	) {}
+}
+
+export type Outline = UrlOutline | PageNumberOutline | PdfReferenceOutline;

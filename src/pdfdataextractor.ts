@@ -1,6 +1,6 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFDocumentProxy, PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
-import { VerbosityLevel, Permissions, Outline, Info, Metadata } from './types';
+import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, Info, Metadata } from './types';
 
 export type PdfDataExtractorOptions = {
 	/**
@@ -43,21 +43,46 @@ async function getPageNumber(pdf_document: PDFDocumentProxy, pageRef: { num: num
 async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutline[], cache: { [key: string]: number; }) {
 	const outline: Outline[] = [];
 	for (const o of outlineData) {
-		const dest: { num: number, gen: number } | null = o.dest ? o.dest[0] as { num: number, gen: number } : null;
-		if (dest == null) {
+		const dest = typeof(o.dest) === 'string' ? await pdf_document.getDestination(o.dest) : o.dest;
+		if(dest == null) {
 			if (o.unsafeUrl != null) {
-				outline.push({
-					title: o.title,
-					url: o.unsafeUrl,
-					childs: o.items ? await parseOutline(pdf_document, o.items, cache) : undefined
-				});
+				if(o.url == null) {
+					const remoteUrl = o.unsafeUrl.split("#", 2);
+					const remoteBaseUrl = remoteUrl[0];
+					if(remoteBaseUrl.toLowerCase().endsWith('.pdf')) {
+						if(remoteUrl.length == 2) {
+							try {
+								const remoteDest = JSON.parse(remoteUrl[1]);
+								if(Number.isInteger(remoteDest[0])) {
+									outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, remoteDest[0], o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
+								}
+							} catch {
+								outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, undefined, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
+							}
+						} else {
+							outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, undefined, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
+						}
+					} else {
+						outline.push(new UrlOutline(o.title, o.unsafeUrl, false, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
+					}
+				} else {
+					outline.push(new UrlOutline(o.title, o.url, true, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
+				}
+			} else {
+				// TODO: ?
 			}
-		} else {
-			outline.push({
-				title: o.title,
-				page: await getPageNumber(pdf_document, dest, cache),
-				childs: o.items ? await parseOutline(pdf_document, o.items, cache) : undefined
-			});
+		} else if(Array.isArray(dest)) {
+			if(dest[0] instanceof Object) {
+				outline.push(new PageNumberOutline(
+					o.title,
+					await getPageNumber(pdf_document, dest[0] as { num: number, gen: number }, cache),
+					o.items ? await parseOutline(pdf_document, o.items, cache) : undefined
+				));
+			} else if(Number.isInteger(dest[0])) {
+				outline.push(new PageNumberOutline(o.title, dest[0], o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
+			} else {
+				// TODO: ?
+			}
 		}
 	}
 	return outline;
@@ -193,7 +218,7 @@ export class PdfDataExtractor {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
 				text_array.push(page == null ? '' : await parsePage(page, sort));
 			}
-		} else if (typeof(pages) == 'function') {
+		} else if (typeof(pages) === 'function') {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				if (pages(pageNumber)) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);

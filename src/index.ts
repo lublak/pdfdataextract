@@ -1,5 +1,42 @@
-import { PdfData, PdfDataOptions, PdfDataGetOptions } from './pdfdata';
-import { PdfDataExtractor, PdfDataExtractorOptions } from './pdfdataextractor';
-import { VerbosityLevel, Permissions, Metadata, Outline, Info, Name } from './types';
+import {
+  PdfData,
+  PdfDataOptions,
+  PdfDataGetOptions,
+} from './pdfdata';
 
-export { PdfData, PdfDataOptions, PdfDataGetOptions, PdfDataExtractor, PdfDataExtractorOptions, VerbosityLevel, Permissions, Metadata, Outline, Info, Name };
+import {
+  PdfDataExtractor,
+  PdfDataExtractorOptions,
+} from './pdfdataextractor';
+
+import {
+  VerbosityLevel,
+  Permissions,
+  Metadata,
+  BaseOutline,
+  Outline,
+  PageNumberOutline,
+  UrlOutline,
+  PdfReferenceOutline,
+  Info,
+  Name,
+} from './types';
+
+export {
+  PdfData,
+  PdfDataOptions,
+  PdfDataGetOptions,
+
+  PdfDataExtractor,
+  PdfDataExtractorOptions,
+
+  VerbosityLevel,
+  Permissions,
+  Metadata,
+  Outline,
+  PageNumberOutline,
+  PdfReferenceOutline,
+  UrlOutline,
+  Info,
+  Name,
+};
