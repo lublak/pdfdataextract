@@ -165,7 +165,7 @@
             "error",
             {
                 "contexts": [
-                    "any"
+                    ":not(:matches(MethodDefinition[key.name=constructor], MethodDefinition[key.name=constructor] *))"
                 ]
             }
         ],

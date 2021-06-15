@@ -108,7 +108,7 @@ export interface Name {
 	 * @type {string}
 	 */
 	readonly name: string
-};
+}
 
 export interface Info {
 	/**
@@ -219,117 +219,75 @@ export interface Info {
 	readonly [key: string]: string | number | boolean | Name | undefined,
 }
 
-export class BaseOutline {
-	constructor(
-		/**
-		 * the title
-		 * 
-		 * @readonly
-		 * @type {string}
-		 */
-		 readonly title: string,
-		/**
-		 * the childrens
-		 * 
-		 * @readonly
-		 * @type {ReadonlyArray<Outline> | undefined}
-		 */
-		 readonly childs?: readonly Outline[],
-	) {}
+/**
+ * it is an outline (bookmark) of the pdf document
+ */
+export interface Outline {
+	/**
+	 * the title
+	 * 
+	 * @readonly
+	 * @type {string}
+	 */
+	readonly title: string,
+	/**
+	 * the childrens
+	 * 
+	 * @readonly
+	 * @type {ReadonlyArray<Outline> | undefined}
+	 */
+	readonly childs?: readonly Outline[],
 }
 
-export class UrlOutline extends BaseOutline {
+/**
+ * the outline which includes a url
+ */
+export class UrlOutline implements Outline {
+	/**
+	 * @param {string} title - the title
+	 * @param {string} url - the url to which the outline points
+	 * @param {boolean} absolute - if the url is absolute
+	 * @param {Outline[]} [childs] - the childrens
+	 */
 	constructor(
-		/**
-		 * the title
-		 * 
-		 * @readonly
-		 * @type {string}
-		 */
 		readonly title: string,
-		/**
-		 * the url to which the outline points
-		 * 
-		 * @readonly
-		 * @type {string}
-		 */
 		readonly url: string,
-		/**
-		 * if the url is absolute
-		 * 
-		 * @readonly
-		 * @type {boolean}
-		 */
 		readonly absolute: boolean,
-		/**
-		 * the childrens
-		 * 
-		 * @readonly
-		 * @type {ReadonlyArray<Outline> | undefined}
-		 */
 		readonly childs?: readonly Outline[],
-	) {
-		super(title, childs);
-	}
-};
+	) {}
+}
 
-export class PageNumberOutline {
+
+/**
+ * the outline which includes a page number
+ */
+export class PageNumberOutline implements Outline {
+	/**
+	 * @param {string} title - the title
+	 * @param {number} page - the page number to which the outline points
+	 * @param {Outline[]} [childs] - the childrens
+	 */
 	constructor(
-		/**
-		 * the title
-		 * 
-		 * @readonly
-		 * @type {string}
-		 */
 		readonly title: string,
-		/**
-			* the page to which the outline points
-			* 
-			* @readonly
-			* @type {number}
-			*/
 		readonly page: number,
-		/**
-			* the childrens
-			* 
-			* @readonly
-			* @type {ReadonlyArray<Outline> | undefined}
-			*/
 		readonly childs?: readonly Outline[],
 	) {}
 }
 
-export class PdfReferenceOutline {
+/**
+ * the outline which includes a reference to another pdf
+ */
+export class PdfReferenceOutline implements Outline {
+	/**
+	 * @param {string} title - the title
+	 * @param {string} url - the url to which the outline points
+	 * @param {number} page - the remote page number to which the outline points
+	 * @param {Outline[]} [childs] - the childrens
+	 */
 	constructor(
-		/**
-		 * the title
-		 * 
-		 * @readonly
-		 * @type {string}
-		 */
 		readonly title: string,
-		/**
-		 * the url to which the outline points
-		 * 
-		 * @readonly
-		 * @type {string}
-		 */
-		 readonly url: string,
-		/**
-			* the page to which the outline points
-			* 
-			* @readonly
-			* @type {number}
-			*/
+		readonly url: string,
 		readonly page?: number,
-		/**
-			* the childrens
-			* 
-			* @readonly
-			* @type {ReadonlyArray<Outline> | undefined}
-			*/
 		readonly childs?: readonly Outline[],
 	) {}
 }
-
-export type Outline = UrlOutline | PageNumberOutline | PdfReferenceOutline;
