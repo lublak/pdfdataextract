@@ -20,7 +20,7 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
 		expect(first_page_lines.length).toEqual(35);
 		expect(first_page_lines[10]).toMatch(/^dapibus mattis/);
 		const permissions = await extractor.getPermissions();
-		expect(permissions).toBeDefined();
+		expect(permissions).not.toBeNull();
 		if(permissions) {
 			expect(permissions.print).toEqual(true);
 			expect(permissions.modifyAnnotations).toEqual(false);
