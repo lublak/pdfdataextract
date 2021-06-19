@@ -1,0 +1,5 @@
+{
+  "plugin": ["typedoc-plugin-markdown"],
+  "theme": "./node_modules/typedoc-github-wiki-theme/dist",
+  "readme": "none"
+}
