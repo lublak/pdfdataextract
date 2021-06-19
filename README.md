@@ -14,7 +14,7 @@ Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmainta
 
 ## Docs
 
-Full documentation is available at the [wiki](/wiki)
+Full documentation is available at the [wiki](https://github.com/lublak/pdfdataextract/wiki)
 
 ## Usage
 
