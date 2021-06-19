@@ -12,6 +12,10 @@ Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmainta
 
 `npm install pdfdataextract`
 
+## Docs
+
+Full documentation is available at the [wiki](/wiki)
+
 ## Usage
 
 ```ts
@@ -93,4 +97,4 @@ PdfDataExtractor.get(file_data, {
 
 ## License
 
-[MIT licensed](/LICENSE).
+[MIT licensed](/LICENSE)
