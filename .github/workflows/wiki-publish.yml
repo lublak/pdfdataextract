@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: 12
       - run: npm ci
-      - run: npx run build:doc
+      - run: npm run build:doc
       - name: Publish to GitHub Wiki
         uses: SwiftDocOrg/github-wiki-publish-action@1.0.0
         with:
