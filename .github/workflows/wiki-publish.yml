@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: 12
       - name: Get Latest Release
-        uses: pozetroninc/github-action-get-latest-release@v0.5.0
+        uses: pozetroninc/github-action-get-latest-release@master
         id: latest_release
         with:
           repository: ${{ env.GITHUB_REPOSITORY }}
