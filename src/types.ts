@@ -15,6 +15,11 @@ export enum VerbosityLevel {
 	WARNINGS = RawVerbosityLevel.WARNINGS,
 }
 
+export enum Sort {
+	ASC,
+	DESC
+}
+
 export interface Permissions {
 	/**
 	 * allow to assemble

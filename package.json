@@ -28,6 +28,7 @@
     "extractor"
   ],
   "dependencies": {
+    "canvas": "^2.8.0",
     "pdfjs-dist": "^2.8.335"
   },
   "devDependencies": {

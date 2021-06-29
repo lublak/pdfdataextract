@@ -3,43 +3,43 @@ import { VerbosityLevel, Permissions, Outline, Info, Metadata } from './types';
 
 export type PdfDataGetOptions = {
 	/**
-	 * get number of pages
+	 * get number of pages, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
 	pages?: boolean,
 	/**
-	 * get text of each page
+	 * get text of each page, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
 	text?: boolean,
 	/**
-	 * get fingerprint
+	 * get fingerprint, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
 	fingerprint?: boolean,
 	/**
-	 * get outline
+	 * get outline, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
 	outline?: boolean,
 	/**
-	 * get metadata
+	 * get metadata, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
 	metadata?: boolean,
 	/**
-	 * get info
+	 * get info, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
 	info?: boolean,
 	/**
-	 * get permissions
+	 * get permissions, by default it is true
 	 * 
 	 * @type {boolean|undefined}
 	 */
@@ -54,7 +54,7 @@ export type PdfDataOptions = {
 	 */
 	password?: string,
 	/**
-	 * the number of pages to be read
+	 * the number of pages to be read, all pages are read by default
 	 *
 	 * @deprecated use pages instead
 	 * 
@@ -77,6 +77,7 @@ export type PdfDataOptions = {
 	 * can either be the number of pages to be read,
 	 * a number array with the exact pages (sorted by page number)
 	 * or a filter function (return true to parse the page)
+	 * all pages are read by default
 	 * not used if get.pages is false
 	 * 
 	 * @type {number|number[]|((pageNumber: number) => boolean|undefined)}
