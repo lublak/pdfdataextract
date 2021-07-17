@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" --cache",
+    "lint:fix": "eslint \"src/**/*.ts\" --cache --fix",
     "build": "tsc",
     "test": "jest",
     "prepare": "npm run build",
@@ -29,9 +30,6 @@
   ],
   "dependencies": {
     "pdfjs-dist": "^2.8.335"
-  },
-  "optionalDependencies": {
-    "canvas": "^2.8.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

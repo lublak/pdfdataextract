@@ -16,7 +16,13 @@ export enum VerbosityLevel {
 }
 
 export enum Sort {
+	/**
+	 * if it should sort ascending
+	 */
 	ASC,
+	/**
+	 * if it should sort descending
+	 */
 	DESC
 }
 

@@ -1,5 +1,5 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
-import { PDFDocumentProxy, PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
+import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/display/api';
 import { PdfPageData } from './pdfpagedata';
 import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, Info, Metadata, Sort } from './types';
 
@@ -91,6 +91,8 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 	return outline;
 }
 
+type PdfPageDataAccess = {new(extractor: PdfDataExtractor, page: PDFPageProxy): PdfPageData};
+
 /**
  * the extractor for the data of the pdf
  */
@@ -161,8 +163,8 @@ export class PdfDataExtractor {
 	 * @param {boolean|Sort} [sort] - sort the text by text coordinates
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
-	async getText(pages?: number | number[] | ((pageNumber: number) => boolean), sort?: boolean|Sort): Promise<string[]> {
-		return Promise.all((await this.getPageData(pages)).map(async page => page == null ? '' : await page.toText(sort)));
+	async getText(pages?: number | number[] | ((pageNumber: number) => boolean), sort: boolean|Sort = false): Promise<string[]> {
+		return Promise.all((await this.getPageData(pages)).map(async (page: PdfPageData | null) => page == null ? '' : page.toText(sort)));
 	}
 
 	/**
@@ -180,20 +182,20 @@ export class PdfDataExtractor {
 		if (pages === undefined) {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : await new PdfPageData(page));
+				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
 			}
 		} else if (typeof(pages) === 'number') {
 			const counter: number = pages > numPages ? numPages : pages;
 			
 			for (let pageNumber: number = 1; pageNumber <= counter; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : await new PdfPageData(page));
+				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
 			}
 		} else if (typeof(pages) === 'function') {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				if (pages(pageNumber)) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : await new PdfPageData(page));
+					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
 				}
 			}
 		} else {
@@ -201,7 +203,7 @@ export class PdfDataExtractor {
 			for (const pageNumber of pages) {
 				if (pageNumber <= numPages) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : await new PdfPageData(page));
+					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
 				}
 			}
 		}
