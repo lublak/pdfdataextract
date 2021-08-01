@@ -1,6 +1,5 @@
 name: Bug Report
 description: Create a report to help us improve
-title: ""
 labels: [bug]
 assignees:
   - lublak
@@ -16,7 +15,6 @@ body:
       label: Describe the bug
       description: A clear and concise description of what the bug is.
       placeholder: The description of the bug.
-      value: ""
     validations:
       required: true
   - type: textarea
@@ -25,7 +23,6 @@ body:
       label: Describe the expected behavior
       description: A clear and concise description of what you expected to happen.
       placeholder: The expected behavior.
-      value: ""
     validations:
       required: true
   - type: input
