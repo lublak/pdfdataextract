@@ -55,7 +55,7 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
-- type: textarea
-  attributes:
-    label: pdf
-    description: Please upload the pdf that can be used to reproduce issues in the area below. (drag and drop)
+  - type: textarea
+    attributes:
+      label: pdf
+      description: Please upload the pdf that can be used to reproduce issues in the area below. (drag and drop)
