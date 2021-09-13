@@ -161,7 +161,7 @@ export class PdfDataExtractor {
 	 * @param {number|number[]|((pageNumber: number) => boolean)} [pages] - can either be the number of pages to be read,
 	 *     a number array with the specific pages (sorted by page number)
 	 *     or a filter function (return true to parse the page)
-	 * @param {boolean|Sort} [sort] - sort the text by text coordinates
+	 * @param {boolean|Sort} [sort=false] - sort the text by text coordinates
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
 	async getText(pages?: number | number[] | ((pageNumber: number) => boolean), sort: boolean|Sort = false): Promise<string[]> {

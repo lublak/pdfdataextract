@@ -10,7 +10,7 @@ export class PdfPageData {
 	/**
 	 * get the text of the page
 	 * 
-	 * @param {boolean|Sort} [sort] - sort the text by text coordinates
+	 * @param {boolean|Sort} [sort=false] - sort the text by text coordinates
 	 * @returns {Promise<string>} a promise that is resolved with a {string} with the extracted text of the page
 	 */
 	public async toText(sort: boolean | Sort = false): Promise<string> {
