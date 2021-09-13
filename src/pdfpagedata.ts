@@ -1,4 +1,4 @@
-import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
+import { PDFPageProxy, TextContent, TextItem, TextMarkedContent } from 'pdfjs-dist/types/display/api';
 import { PdfDataExtractor } from './pdfdataextractor';
 import { Sort } from './types';
 
@@ -16,8 +16,12 @@ export class PdfPageData {
 	 */
 	public async toText(sort: boolean | Sort = false): Promise<string> {
 		const sortOption: Sort | null = typeof sort === 'boolean' ? (sort ? Sort.ASC : null) : sort;
-		return this.page.getTextContent().then((textContent: TextContent)  => {
-
+		return this.page.getTextContent({
+			disableCombineTextItems: false,
+			normalizeWhitespace: false,
+			includeMarkedContent: false
+		}).then((textContent: TextContent)  => {
+			const items:TextItem[] = textContent.items as TextItem[];
 			/*
 				transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
 			
@@ -35,7 +39,7 @@ export class PdfPageData {
 			//coordinate based sorting
 			if (sortOption !== null) {
 				if (sortOption === Sort.ASC) {
-					textContent.items.sort((e1: TextItem, e2: TextItem) => {
+					items.sort((e1: TextItem, e2: TextItem) => {
 						if (e1.transform[5] < e2.transform[5]) return 1;
 						else if (e1.transform[5] > e2.transform[5]) return -1;
 						else if (e1.transform[4] < e2.transform[4]) return -1;
@@ -43,7 +47,7 @@ export class PdfPageData {
 						else return 0;
 					});
 				} else {
-					textContent.items.sort((e1: TextItem, e2: TextItem) => {
+					items.sort((e1: TextItem, e2: TextItem) => {
 						if (e1.transform[5] < e2.transform[5]) return -1;
 						else if (e1.transform[5] > e2.transform[5]) return 1;
 						else if (e1.transform[4] < e2.transform[4]) return 1;
@@ -54,7 +58,7 @@ export class PdfPageData {
 			}
 
 			let lastLineY: number = -1, text: string = '';
-			for (const item of textContent.items) {
+			for (const item of items) {
 				if (lastLineY === -1 || lastLineY == item.transform[5]) {
 					text += item.str;
 					// TODO if spaced by coordinates (x + text width + space width = next x)

@@ -41,6 +41,16 @@ async function getPageNumber(pdf_document: PDFDocumentProxy, pageRef: { num: num
 	return number;
 }
 
+function parseRemoteUrlDest(remoteUrlDest: string) {
+	try {
+		const remoteDest: unknown = JSON.parse(remoteUrlDest);
+		if (Array.isArray(remoteDest) && Number.isInteger(remoteDest[0])) {
+			return remoteDest[0];
+		}
+	} catch {}
+	return undefined;
+}
+
 async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutline[], cache: { [key: string]: number; }) {
 	const outline: Outline[] = [];
 	for (const o of outlineData) {
@@ -52,16 +62,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 					const remoteBaseUrl: string = remoteUrl[0];
 					if (remoteBaseUrl.toLowerCase().endsWith('.pdf')) {
 						if (remoteUrl.length == 2) {
-							try {
-								const remoteDest: unknown = JSON.parse(remoteUrl[1]);
-								if (Array.isArray(remoteDest) && Number.isInteger(remoteDest[0])) {
-									outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, remoteDest[0], o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
-								} else {
-									outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, undefined, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
-								}
-							} catch {
-								outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, undefined, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
-							}
+							outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, parseRemoteUrlDest(remoteUrl[1]), o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
 						} else {
 							outline.push(new PdfReferenceOutline(o.title, remoteBaseUrl, undefined, o.items ? await parseOutline(pdf_document, o.items, cache) : undefined));
 						}
@@ -75,7 +76,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 				// TODO: ?
 			}
 		} else if (Array.isArray(dest)) {
-			if (dest[0] instanceof Object) {
+			if (typeof dest[0] === 'object') {
 				outline.push(new PageNumberOutline(
 					o.title,
 					await getPageNumber(pdf_document, dest[0] as { num: number, gen: number }, cache),
