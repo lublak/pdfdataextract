@@ -1,12 +1,11 @@
 import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
-import { PdfDataExtractor } from './pdfdataextractor';
 import { Sort } from './types';
 
 /**
  * pdf data information per page
  */
 export class PdfPageData {
-	private constructor(private extractor: PdfDataExtractor, private page: PDFPageProxy) {}
+	private constructor(private page: PDFPageProxy) {}
 
 	/**
 	 * get the text of the page

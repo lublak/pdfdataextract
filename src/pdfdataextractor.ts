@@ -92,7 +92,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 	return outline;
 }
 
-type PdfPageDataAccess = {new(extractor: PdfDataExtractor, page: PDFPageProxy): PdfPageData};
+type PdfPageDataAccess = {new(page: PDFPageProxy): PdfPageData};
 
 /**
  * the extractor for the data of the pdf
@@ -183,20 +183,20 @@ export class PdfDataExtractor {
 		if (pages === undefined) {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
+				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
 			}
 		} else if (typeof(pages) === 'number') {
 			const counter: number = pages > numPages ? numPages : pages;
 			
 			for (let pageNumber: number = 1; pageNumber <= counter; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
+				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
 			}
 		} else if (typeof(pages) === 'function') {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				if (pages(pageNumber)) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
+					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
 				}
 			}
 		} else {
@@ -204,7 +204,7 @@ export class PdfDataExtractor {
 			for (const pageNumber of pages) {
 				if (pageNumber <= numPages) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(this, page));
+					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
 				}
 			}
 		}
