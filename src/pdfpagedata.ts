@@ -1,4 +1,4 @@
-import { PDFPageProxy, TextContent, TextItem, TextMarkedContent } from 'pdfjs-dist/types/display/api';
+import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
 import { PdfDataExtractor } from './pdfdataextractor';
 import { Sort } from './types';
 
@@ -21,7 +21,7 @@ export class PdfPageData {
 			normalizeWhitespace: false,
 			includeMarkedContent: false
 		}).then((textContent: TextContent)  => {
-			const items:TextItem[] = textContent.items as TextItem[];
+			const items: TextItem[] = textContent.items as TextItem[];
 			/*
 				transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
 			
