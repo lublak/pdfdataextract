@@ -1,4 +1,4 @@
-import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/display/api';
+import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { Sort } from './types';
 
 /**

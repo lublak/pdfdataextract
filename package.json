@@ -29,22 +29,22 @@
     "extractor"
   ],
   "dependencies": {
-    "pdfjs-dist": "^2.9.359"
+    "pdfjs-dist": "2.10.377"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "@types/node": "^14.17.15",
-    "@typescript-eslint/eslint-plugin": "^4.31.0",
-    "@typescript-eslint/parser": "^4.31.0",
-    "eslint": "^7.32.0",
+    "@types/jest": "^27.0.2",
+    "@types/node": "^14.17.27",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "eslint": "^8.0.1",
     "eslint-plugin-deprecation": "^1.2.1",
-    "eslint-plugin-jsdoc": "^32.3.4",
-    "jest": "^26.6.3",
-    "ts-jest": "^26.5.6",
-    "typedoc": "^0.21.9",
-    "typedoc-github-wiki-theme": "^0.4.1",
-    "typedoc-plugin-markdown": "^3.10.4",
-    "typescript": "^4.4.3"
+    "eslint-plugin-jsdoc": "^36.1.1",
+    "jest": "^27.3.0",
+    "ts-jest": "^27.0.7",
+    "typedoc": "^0.22.6",
+    "typedoc-github-wiki-theme": "^0.6.0",
+    "typedoc-plugin-markdown": "^3.11.3",
+    "typescript": "^4.4.4"
   },
   "homepage": "https://github.com/lublak/pdfdataextract#readme",
   "bugs": {

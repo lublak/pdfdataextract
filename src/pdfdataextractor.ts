@@ -1,5 +1,5 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
-import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/display/api';
+import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 import { PdfPageData } from './pdfpagedata';
 import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, Info, Metadata, Sort } from './types';
 
@@ -124,7 +124,7 @@ export class PdfDataExtractor {
 	 * @returns {string} the fingerprint
 	 */
 	get fingerprint(): string {
-		return this.pdf_document.fingerprint;
+		return this.pdf_document.fingerprints[0];
 	}
 
 	/**
