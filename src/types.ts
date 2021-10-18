@@ -112,6 +112,17 @@ export interface Metadata {
 	has(name: string): boolean;
 }
 
+export interface MetadataInfo {
+	/**
+	 * the meta information of the document
+	 */
+	info: Info;
+	/**
+	 * the metadata of the document
+	 */
+	metadata: Metadata;
+}
+
 export interface Name {
 	/**
 	 * the name

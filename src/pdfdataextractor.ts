@@ -1,7 +1,7 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 import { PdfPageData } from './pdfpagedata';
-import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, Info, Metadata, Sort } from './types';
+import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, MetadataInfo, Sort } from './types';
 
 export type PdfDataExtractorOptions = {
 	/**
@@ -226,10 +226,10 @@ export class PdfDataExtractor {
 	/**
 	 * get the metadata
 	 *
-	 * @returns {Promise<{ info: Info; metadata: Metadata; } | null>} a promise that is resolved with a {{ info: Info; metadata: Metadata; } | null} object with information from the metadata section
+	 * @returns {Promise<MetadataInfo | null>} a promise that is resolved with a {MetadataInfo | null} object with information from the metadata section
 	 */
-	async getMetadata(): Promise<{ info: Info; metadata: Metadata; } | null> {
-		return await this.pdf_document.getMetadata().catch(() => null) as { info: Info; metadata: Metadata; } | null;
+	async getMetadata(): Promise<MetadataInfo | null> {
+		return await this.pdf_document.getMetadata().catch(() => null) as MetadataInfo | null;
 	}
 
 	/**
