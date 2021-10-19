@@ -18,7 +18,7 @@ export type PdfDataExtractorOptions = {
 	verbosity?: VerbosityLevel,
 }
 
-type RawOutline = {
+interface RawOutline {
 	title: string;
 	bold: boolean;
 	italic: boolean;
@@ -92,13 +92,11 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 	return outline;
 }
 
-type PdfPageDataAccess = {new(page: PDFPageProxy): PdfPageData};
-
 /**
  * the extractor for the data of the pdf
  */
 export class PdfDataExtractor {
-	private constructor(private readonly pdf_document: PDFDocumentProxy) {}
+	public constructor(private readonly pdf_document: PDFDocumentProxy) {}
 
 	/**
 	 * get the extractor for the data
@@ -183,20 +181,20 @@ export class PdfDataExtractor {
 		if (pages === undefined) {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
+				page_array.push(page == null ? null : new PdfPageData(page));
 			}
 		} else if (typeof(pages) === 'number') {
 			const counter: number = pages > numPages ? numPages : pages;
 			
 			for (let pageNumber: number = 1; pageNumber <= counter; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
+				page_array.push(page == null ? null : new PdfPageData(page));
 			}
 		} else if (typeof(pages) === 'function') {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				if (pages(pageNumber)) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
+					page_array.push(page == null ? null : new PdfPageData(page));
 				}
 			}
 		} else {
@@ -204,7 +202,7 @@ export class PdfDataExtractor {
 			for (const pageNumber of pages) {
 				if (pageNumber <= numPages) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : new (PdfPageData as PdfPageDataAccess)(page));
+					page_array.push(page == null ? null : new PdfPageData(page));
 				}
 			}
 		}

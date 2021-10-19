@@ -29,7 +29,10 @@
     "extractor"
   ],
   "dependencies": {
-    "pdfjs-dist": "2.10.377"
+    "canvas": "^2.8.0",
+    "pdfjs-dist": "2.10.377",
+    "pureimage": "^0.3.5",
+    "tesseract.js": "^2.1.5"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",

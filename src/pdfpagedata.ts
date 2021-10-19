@@ -1,11 +1,17 @@
 import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
-import { Sort } from './types';
+import { NodeCanvasFactory } from 'pdfjs-dist/types/src/display/node_utils';
+import { OCRLang, Sort } from './types';
+import { createCanvas, JpegConfig } from 'canvas';
+import { encodeJPEGToStream, encodePNGToStream, make } from 'pureimage';
+import { promisify } from 'util';
+import { createScheduler, createWorker, RecognizeResult } from 'tesseract.js';
+import { PassThrough } from 'stream';
 
 /**
  * pdf data information per page
  */
 export class PdfPageData {
-	private constructor(private page: PDFPageProxy) {}
+	public constructor(private page: PDFPageProxy) {}
 
 	/**
 	 * get the text of the page
@@ -71,5 +77,87 @@ export class PdfPageData {
 			}
 			return text;
 		}, () => '');
+	}
+
+	public static async ocr(pages:PdfPageData[], langs:OCRLang[]) {
+		const lang = langs.join('+');
+    const scheduler = createScheduler();
+    for(let i = 0; i < pages.length; i++) {
+      const worker = createWorker();
+      await worker.load();
+      await worker.loadLanguage(lang);
+      await worker.initialize(lang);
+      scheduler.addWorker(worker);
+    }
+    const result = await Promise.all(pages.map(async page => scheduler.addJob('recognize', await page.toJPEG()))) as RecognizeResult[];
+    await scheduler.terminate();
+  }
+
+	public async ocr(langs:OCRLang[]) {
+		const lang = langs.join('+');
+		const worker = createWorker();
+    await worker.load();
+    await worker.loadLanguage(lang);
+    await worker.initialize(lang);
+		const data = await worker.recognize(await this.toJPEG());
+		await worker.terminate();
+	}
+	
+	/**
+	 * converts to pdf page to png image
+	 */
+	 public async toJPEG(quality?:number) {
+		const viewport = this.page.getViewport({scale: 1.0});
+		if(false) {
+			const canvas = make(viewport.width, viewport.height, null);
+			await this.page.render({
+				canvasContext: canvas.getContext('2d'),
+				viewport: viewport,
+				canvasFactory: new NodeCanvasFactory()
+			}).promise;
+			const result:Uint8Array[] = [];
+			const stream = new PassThrough();
+			stream.on('data', data => result.push(data));
+			await encodeJPEGToStream(canvas, stream, quality);
+			return Buffer.concat(result);
+		} else {
+			const canvas = createCanvas(viewport.width, viewport.height);
+			await this.page.render({
+				canvasContext: canvas.getContext('2d'),
+				viewport: viewport,
+				canvasFactory: new NodeCanvasFactory()
+			}).promise;
+			return promisify<'image/jpeg', JpegConfig, Buffer>(canvas.toBuffer)('image/jpeg', {
+				quality: quality
+			});
+		}
+	}
+
+	/**
+	 * converts to pdf page to png image
+	 */
+	public async toPNG() {
+		const viewport = this.page.getViewport({scale: 1.0});
+		if(false) {
+			const canvas = make(viewport.width, viewport.height, null);
+			await this.page.render({
+				canvasContext: canvas.getContext('2d'),
+				viewport: viewport,
+				canvasFactory: new NodeCanvasFactory()
+			}).promise;
+			const result:Uint8Array[] = [];
+			const stream = new PassThrough();
+			stream.on('data', data => result.push(data));
+			await encodePNGToStream(canvas, stream);
+			return Buffer.concat(result);
+		} else {
+			const canvas = createCanvas(viewport.width, viewport.height);
+			await this.page.render({
+				canvasContext: canvas.getContext('2d'),
+				viewport: viewport,
+				canvasFactory: new NodeCanvasFactory()
+			}).promise;
+			return promisify<'image/png', Buffer>(canvas.toBuffer)('image/png');
+		}
 	}
 }
