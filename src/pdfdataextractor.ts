@@ -29,7 +29,7 @@ interface RawOutline {
 	newWindow: boolean | undefined;
 	count: number | undefined;
 	items: RawOutline[] | undefined;
-};
+}
 
 async function getPageNumber(pdf_document: PDFDocumentProxy, pageRef: { num: number, gen: number }, cache: { [key: string]: number; }) {
 	const ref: string = pageRef.gen === 0 ? `${pageRef.num}R` : `${pageRef.num}R${pageRef.gen}`;
@@ -96,6 +96,11 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
  * the extractor for the data of the pdf
  */
 export class PdfDataExtractor {
+	/**
+	 * create a {PdfDataExtractor} from a pdfjs based {PDFDocumentProxy} 
+	 * 
+	 * @param {PDFDocumentProxy} pdf_document - the pdf document from pdfjs
+	 */
 	public constructor(private readonly pdf_document: PDFDocumentProxy) {}
 
 	/**
