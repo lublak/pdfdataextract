@@ -10,6 +10,11 @@ import {
 } from './pdfdataextractor';
 
 import {
+	CanvasFactory,
+	CanvasApi
+} from './canvasfactory';
+
+import {
 	VerbosityLevel,
 	Permissions,
 	Metadata,
@@ -28,6 +33,9 @@ export {
 
 	PdfDataExtractor,
 	PdfDataExtractorOptions,
+
+	CanvasFactory,
+	CanvasApi,
 
 	VerbosityLevel,
 	Permissions,

@@ -1,6 +1,5 @@
 import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { OCRLang, Sort } from './types';
-import { createScheduler, createWorker, RecognizeResult, Scheduler, Worker } from 'tesseract.js';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
 
@@ -88,35 +87,22 @@ export class PdfPageData {
 	 * @returns {Promise<string[]>} an array with text from each side
 	 */
 	public static async ocr(pages: PdfPageData[], langs: OCRLang[]): Promise<string[]> {
-		const lang: string = langs.join('+');
-		const scheduler: Scheduler = createScheduler();
-		for (let i: number = 0; i < pages.length; i++) {
-			const worker: Worker = createWorker();
-			await worker.load();
-			await worker.loadLanguage(lang);
-			await worker.initialize(lang);
-			scheduler.addWorker(worker);
-		}
-		const result: RecognizeResult[] = await Promise.all(pages.map(async (page: PdfPageData) => scheduler.addJob('recognize', await page.toJPEG()))) as RecognizeResult[];
-		await scheduler.terminate();
-		return result.map((r: RecognizeResult) => r.data.text);
+		return (await import('./tesseractjsocr').catch(() => {
+			throw new Error('tesseract.js is not installed');
+		})).tesseractBuffers(await Promise.all(pages.map((page:PdfPageData) => page.toJPEG())), langs);
 	}
 
 	/**
 	 * recognizes the text from the image information of this pdf page
+	 * requires node-canvas/node-pureimage and tesseract.js as additional installation
 	 * 
 	 * @param {OCRLang[]} langs - the language libraries used for recognition
 	 * @returns {Promise<string>} the result as text
 	 */
 	public async ocr(langs: OCRLang[]): Promise<string> {
-		const lang: string = langs.join('+');
-		const worker: Worker = createWorker();
-		await worker.load();
-		await worker.loadLanguage(lang);
-		await worker.initialize(lang);
-		const data: RecognizeResult = await worker.recognize(await this.toJPEG());
-		await worker.terminate();
-		return data.data.text;
+		return (await import('./tesseractjsocr').catch(() => {
+			throw new Error('tesseract.js is not installed');
+		})).tesseractBuffer(await this.toJPEG(), langs);
 	}
 	
 	/**
@@ -126,6 +112,7 @@ export class PdfPageData {
 	 * @returns {Promise<Buffer>} the jpeg image as a {Buffer}
 	 */
 	public async toJPEG(quality: number = 0.8): Promise<Buffer> {
+		if(!CanvasFactory.canvasApi) throw new Error('CanvasFactory.canvasApi is not set (node-canvas or pureimage is not installed)')
 		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
 		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
@@ -142,6 +129,7 @@ export class PdfPageData {
 	 * @returns {Promise<Buffer>} the png image as a {Buffer}
 	 */
 	public async toPNG(): Promise<Buffer> {
+		if(!CanvasFactory.canvasApi) throw new Error('CanvasFactory.canvasApi is not set (node-canvas or pureimage is not installed)')
 		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
 		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({

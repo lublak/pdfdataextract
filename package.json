@@ -29,10 +29,7 @@
     "extractor"
   ],
   "dependencies": {
-    "canvas": "^2.8.0",
-    "pdfjs-dist": "2.10.377",
-    "pureimage": "^0.3.5",
-    "tesseract.js": "^2.1.5"
+    "pdfjs-dist": "2.10.377"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
@@ -48,7 +45,10 @@
     "typedoc": "^0.22.6",
     "typedoc-github-wiki-theme": "^0.6.0",
     "typedoc-plugin-markdown": "^3.11.3",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "canvas": "^2.8.0",
+    "pureimage": "^0.3.5",
+    "tesseract.js": "^2.1.5"
   },
   "homepage": "https://github.com/lublak/pdfdataextract#readme",
   "bugs": {

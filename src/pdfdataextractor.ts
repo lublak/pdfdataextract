@@ -1,5 +1,6 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
+import { CanvasFactory } from './canvasfactory';
 import { PdfPageData } from './pdfpagedata';
 import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, MetadataInfo, Sort } from './types';
 
@@ -96,10 +97,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
  * the extractor for the data of the pdf
  */
 export class PdfDataExtractor {
-	/**
-	 * @internal
-	 */
-	public constructor(private readonly pdf_document: PDFDocumentProxy) {}
+	private constructor(private readonly pdf_document: PDFDocumentProxy) {}
 
 	/**
 	 * get the extractor for the data
@@ -115,7 +113,19 @@ export class PdfDataExtractor {
 			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
 			isEvalSupported: false,
 		}).promise;
-
+		if(CanvasFactory.canvasApi === undefined) {
+			try {
+				require.resolve('canvas');
+				CanvasFactory.canvasApi = (await import('./nodecanvas')).NodeCanvas;
+			} catch(e) {
+				try {
+					require.resolve('pureimage');
+					CanvasFactory.canvasApi = (await import('./pureimagecanvas')).PureimageCanvas;
+				} catch(e) {
+					CanvasFactory.canvasApi = null;
+				}
+			}
+		}
 		return new PdfDataExtractor(pdf_document);
 	}
 
