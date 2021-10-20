@@ -1,13 +1,11 @@
-import { PDFOperatorList, PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
-import { NodeCanvasFactory } from 'pdfjs-dist/types/src/display/node_utils';
+import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { OCRLang, Sort } from './types';
-import { Canvas, createCanvas, JpegConfig } from 'canvas';
 // import { encodeJPEGToStream, encodePNGToStream, make } from 'pureimage';
-import { promisify } from 'util';
 import { createScheduler, createWorker, RecognizeResult, Scheduler, Worker } from 'tesseract.js';
 //import { PassThrough } from 'stream';
 //import { Bitmap } from 'pureimage/types/bitmap';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
+import { CanvasFactory } from './canvasfactory';
 
 /**
  * pdf data information per page
@@ -134,31 +132,13 @@ export class PdfPageData {
 	 */
 	public async toJPEG(quality: number = 0.8): Promise<Buffer> {
 		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
-		//if (false) {
-		//	const canvas: Bitmap = make(viewport.width, viewport.height, null);
-		//	await this.page.render({
-		//		canvasContext: canvas.getContext('2d'),
-		//		viewport: viewport,
-		//		canvasFactory: new NodeCanvasFactory()
-		//	}).promise;
-		//	const result: Uint8Array[] = [];
-		//	const stream: PassThrough = new PassThrough();
-		//	stream.on('data', (data: Uint8Array) => result.push(data));
-		//	await encodeJPEGToStream(canvas, stream, quality);
-		//	return Buffer.concat(result);
-		//} else {
-		//	
-		//}
-
-		const canvas: Canvas = createCanvas(viewport.width, viewport.height);
+		const canvas = new CanvasFactory.canvas(viewport.width, viewport.height);
 		await this.page.render({
-			canvasContext: canvas.getContext('2d'),
+			canvasContext: canvas.createContext(),
 			viewport: viewport,
-			canvasFactory: new NodeCanvasFactory()
+			canvasFactory: new CanvasFactory()
 		}).promise;
-		return promisify<'image/jpeg', JpegConfig, Buffer>(canvas.toBuffer)('image/jpeg', {
-			quality: quality
-		});
+		return canvas.toJPEG(quality);
 	}
 
 	/**
@@ -168,27 +148,12 @@ export class PdfPageData {
 	 */
 	public async toPNG(): Promise<Buffer> {
 		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
-		//if (false) {
-		//	const canvas: Bitmap = make(viewport.width, viewport.height, null);
-		//	await this.page.render({
-		//		canvasContext: canvas.getContext('2d'),
-		//		viewport: viewport,
-		//		canvasFactory: new NodeCanvasFactory()
-		//	}).promise;
-		//	const result: Uint8Array[] = [];
-		//	const stream: PassThrough = new PassThrough();
-		//	stream.on('data', (data: Uint8Array) => result.push(data));
-		//	await encodePNGToStream(canvas, stream);
-		//	return Buffer.concat(result);
-		//} else {
-		//	
-		//}
-		const canvas: Canvas = createCanvas(viewport.width, viewport.height);
+		const canvas = new CanvasFactory.canvas(viewport.width, viewport.height);
 		await this.page.render({
-			canvasContext: canvas.getContext('2d'),
+			canvasContext: canvas.createContext,
 			viewport: viewport,
-			canvasFactory: new NodeCanvasFactory()
+			canvasFactory: new CanvasFactory()
 		}).promise;
-		return promisify<'image/png', Buffer>(canvas.toBuffer)('image/png');
+		return canvas.toPNG();
 	}
 }
