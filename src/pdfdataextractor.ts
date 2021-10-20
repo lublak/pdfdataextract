@@ -97,9 +97,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
  */
 export class PdfDataExtractor {
 	/**
-	 * create a {PdfDataExtractor} from a pdfjs based {PDFDocumentProxy} 
-	 * 
-	 * @param {PDFDocumentProxy} pdf_document - the pdf document from pdfjs
+	 * @internal
 	 */
 	public constructor(private readonly pdf_document: PDFDocumentProxy) {}
 

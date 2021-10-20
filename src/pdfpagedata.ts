@@ -1,20 +1,15 @@
 import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { OCRLang, Sort } from './types';
-// import { encodeJPEGToStream, encodePNGToStream, make } from 'pureimage';
 import { createScheduler, createWorker, RecognizeResult, Scheduler, Worker } from 'tesseract.js';
-//import { PassThrough } from 'stream';
-//import { Bitmap } from 'pureimage/types/bitmap';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
-import { CanvasFactory } from './canvasfactory';
+import { CanvasApi, CanvasFactory } from './canvasfactory';
 
 /**
  * pdf data information per page
  */
 export class PdfPageData {
 	/**
-	 * create a {PdfPageData} from a pdfjs based {PDFPageProxy}
-	 *
-	 * @param {PDFPageProxy} page - the page from pdfjs
+	 * @internal
 	 */
 	public constructor(private page: PDFPageProxy) {}
 
@@ -132,7 +127,7 @@ export class PdfPageData {
 	 */
 	public async toJPEG(quality: number = 0.8): Promise<Buffer> {
 		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
-		const canvas = new CanvasFactory.canvas(viewport.width, viewport.height);
+		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
 			canvasContext: canvas.createContext(),
 			viewport: viewport,
@@ -148,9 +143,9 @@ export class PdfPageData {
 	 */
 	public async toPNG(): Promise<Buffer> {
 		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
-		const canvas = new CanvasFactory.canvas(viewport.width, viewport.height);
+		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
-			canvasContext: canvas.createContext,
+			canvasContext: canvas.createContext(),
 			viewport: viewport,
 			canvasFactory: new CanvasFactory()
 		}).promise;
