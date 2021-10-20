@@ -113,15 +113,15 @@ export class PdfDataExtractor {
 			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
 			isEvalSupported: false,
 		}).promise;
-		if(CanvasFactory.canvasApi === undefined) {
+		if (CanvasFactory.canvasApi === undefined) {
 			try {
 				require.resolve('canvas');
 				CanvasFactory.canvasApi = (await import('./nodecanvas')).NodeCanvas;
-			} catch(e) {
+			} catch (e) {
 				try {
 					require.resolve('pureimage');
 					CanvasFactory.canvasApi = (await import('./pureimagecanvas')).PureimageCanvas;
-				} catch(e) {
+				} catch (e) {
 					CanvasFactory.canvasApi = null;
 				}
 			}

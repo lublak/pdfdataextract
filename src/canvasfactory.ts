@@ -1,6 +1,3 @@
-import { PassThrough } from 'stream';
-import { promisify } from 'util';
-
 export interface CanvasApi {
 	/**
 	 * create the 2d context of the canvas

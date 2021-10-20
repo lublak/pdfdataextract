@@ -1,16 +1,15 @@
-//@ts-ignore
-//ignore import errors because its dynamicly loaded from pdfdataextractor
+//@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { encodeJPEGToStream, encodePNGToStream, make } from 'pureimage';
-//@ts-ignore
-//ignore import errors because its dynamicly loaded from pdfdataextractor
+//@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { Bitmap } from 'pureimage/types/bitmap';
 import { PassThrough } from 'stream';
 import { CanvasApi } from './canvasfactory';
 
 /**
  * default implementation for pureimage
+ * look at the {CanvasApi} doc
  */
- export class PureimageCanvas implements CanvasApi {
+export class PureimageCanvas implements CanvasApi {
 	private bitmap: Bitmap;
 	/**
 	 * @internal

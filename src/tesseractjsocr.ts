@@ -1,10 +1,16 @@
-//@ts-ignore
-//ignore import errors because its dynamicly loaded from pdfdataextractor
+//@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { createScheduler, createWorker, RecognizeResult, Scheduler, Worker } from 'tesseract.js';
 import { OCRLang } from './types';
 
-export async function tesseractBuffers(buffers: Buffer[], langs: OCRLang[]) {
-  const lang: string = langs.join('+');
+/**
+ * recognize characters of multiple buffers with multiple workers
+ * 
+ * @param {Buffer[]} buffers - the image buffers
+ * @param {OCRLang[]} langs - the language traineddata used for recognition
+ * @returns {Promise<string[]>} an array with text from each side
+ */
+export async function tesseractBuffers(buffers: Buffer[], langs: OCRLang[]): Promise<string[]> {
+	const lang: string = langs.join('+');
 	const scheduler: Scheduler = createScheduler();
 	for (let i: number = 0; i < buffers.length; i++) {
 		const worker: Worker = createWorker();
@@ -18,8 +24,15 @@ export async function tesseractBuffers(buffers: Buffer[], langs: OCRLang[]) {
 	return result.map((r: RecognizeResult) => r.data.text);
 }
 
-export async function tesseractBuffer(buffer:Buffer, langs: OCRLang[]) {
-  const lang: string = langs.join('+');
+/**
+ * recognize characters of one buffer
+ * 
+ * @param {Buffer} buffer - the image buffer
+ * @param {OCRLang[]} langs - the language traineddata used for recognition
+ * @returns {Promise<string>} the result as text
+ */
+export async function tesseractBuffer(buffer: Buffer, langs: OCRLang[]): Promise<string> {
+	const lang: string = langs.join('+');
 	const worker: Worker = createWorker();
 	await worker.load();
 	await worker.loadLanguage(lang);

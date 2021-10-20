@@ -1,13 +1,13 @@
-//@ts-ignore
-//ignore import errors because its dynamicly loaded from pdfdataextractor
+//@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { Canvas, createCanvas, JpegConfig } from 'canvas';
 import { promisify } from 'util';
 import { CanvasApi } from './canvasfactory';
 
 /**
  * default implementation for node-canvas
+ * look at the {CanvasApi} doc
  */
- export class NodeCanvas implements CanvasApi {
+export class NodeCanvas implements CanvasApi {
 	private canvas: Canvas;
 	/**
 	 * @internal
