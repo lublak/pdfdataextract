@@ -2,6 +2,8 @@ import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/displ
 import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
+import { OPS } from 'pdfjs-dist/legacy/build/pdf';
+import { ContentInfoExtractor } from './contentinfoextractor';
 
 /**
  * pdf data information per page
@@ -92,6 +94,11 @@ export class PdfPageData {
 		})).tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
 	}
 
+	public async contentInfo() {
+		const infoExtractor = new ContentInfoExtractor(this.page);
+		const contentInfos = await infoExtractor.getContentInfo();
+	}
+
 	/**
 	 * recognizes the text from the image information of this pdf page
 	 * requires node-canvas/node-pureimage and tesseract.js as additional installation
@@ -100,6 +107,7 @@ export class PdfPageData {
 	 * @returns {Promise<string>} the result as text
 	 */
 	public async ocr(langs: OCRLang[]): Promise<string> {
+		const operatorList = await this.page.getOperatorList();
 		return (await import('./tesseractjsocr').catch(() => {
 			throw new Error('tesseract.js is not installed');
 		})).tesseractBuffer(await this.toJPEG(), langs);
