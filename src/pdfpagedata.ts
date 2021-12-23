@@ -2,8 +2,7 @@ import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/displ
 import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
-import { OPS } from 'pdfjs-dist/legacy/build/pdf';
-import { ContentInfoExtractor } from './contentinfoextractor';
+import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
 
 /**
  * pdf data information per page
@@ -25,7 +24,7 @@ export class PdfPageData {
 		return this.page.getTextContent({
 			disableCombineTextItems: false,
 			normalizeWhitespace: false,
-			includeMarkedContent: false
+			includeMarkedContent: false,
 		}).then((textContent: TextContent)  => {
 			const items: TextItem[] = textContent.items as TextItem[];
 			/*
@@ -94,9 +93,8 @@ export class PdfPageData {
 		})).tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
 	}
 
-	public async contentInfo() {
-		const infoExtractor = new ContentInfoExtractor(this.page);
-		const contentInfos = await infoExtractor.getContentInfo();
+	public async contentInfo():Promise<ContentInfo[]> {
+		return await new ContentInfoExtractor(this.page).getContentInfo();
 	}
 
 	/**

@@ -1,14 +1,20 @@
 import { OPS } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFOperatorList, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 
+// based on https://github.com/mozilla/pdf.js/blob/master/src/display/canvas.js and https://github.com/mozilla/pdf.js/blob/master/src/display/svg.js
+
+const IDENTITY_MATRIX:[number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0];
+const FONT_IDENTITY_MATRIX:[number, number, number, number, number, number] = [0.001, 0, 0, 0.001, 0, 0];
+
 interface Glyph {
   originalCharCode:number;
   fontChar:string;
   unicode:string;
   accent:number | null;
-  width: number,
-  isSpace: boolean,
-  isInFont: boolean
+  width:number;
+  isSpace:boolean;
+  isInFont:boolean;
+  vmetric:[number, number, number];
 }
 interface PDFObjects {
   get(objId:string, callback:(data:unknown) => void):null;
@@ -16,13 +22,38 @@ interface PDFObjects {
   has(objId:string):boolean;
   resolve(objId:string, data:unknown):void;
 }
+interface Font {
+  data:BufferSource;
+  vertical:boolean;
+  defaultVMetrics:[number, number, number];
+  missingFile:boolean;
+  mimetype:string;
+  loadedName:string;
+  fallbackName:string;
+  fontMatrix:[number, number, number, number, number, number];
+  black:boolean;
+  bold:boolean;
+  italic:boolean;
+  isType3Font:boolean;
+}
+
 export class ContentInfo {
-  x:number = 0;
-  y:number = 0;
+  x:number;
+  y:number;
+  public constructor(x:number, y:number) {
+    this.x = x;
+    this.y = y;
+  }
 }
-export class PathInfo extends ContentInfo {
-  
+export class PathInfo extends ContentInfo {}
+export class TextContent extends ContentInfo {
+  text:string;
+  public constructor(x:number, y:number, text:string) {
+    super(x, y);
+    this.text = text;
+  }
 }
+
 export enum LineCap {
   BUTT = 0,
   ROUND = 1,
@@ -56,13 +87,13 @@ class ContentInfoExtractorState {
   miterLimit?:number;
   dashArray?:number[];
   dashPhase?:number;
-  transformMatrix:[number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0];
-  textTransformMatrix:[number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0];
+  transformMatrix:[number, number, number, number, number, number] = IDENTITY_MATRIX;
+  fontMatrix:[number, number, number, number, number, number] = FONT_IDENTITY_MATRIX;
   path:([number, number, number, number]|[number, number, number, number, number, number])[] = [];
   pathOpen:boolean = true;
   leading:number = 0;
-  x?:number;
-  y?:number;
+  x:number = 0;
+  y:number = 0;
   strokeColor:number = 0;
   fillColor:number = 0;
   textRise:number = 0;
@@ -70,6 +101,9 @@ class ContentInfoExtractorState {
   wordSpacing:number = 0;
   hScale:number = 0;
   textRenderingMode:TextRenderingMode = TextRenderingMode.FILL;
+  font?:Font;
+  fontSize:number = 0;
+  fontDirection:number = 1;
 }
 export class ContentInfoExtractor {
   private contentInfo:ContentInfo[] = [];
@@ -86,7 +120,7 @@ export class ContentInfoExtractor {
 
   public async getContentInfo():Promise<ContentInfo[]> {
     const operatorList = await this.page.getOperatorList();
-    await ContentInfoExtractor.loadDependencies(this.page, operatorList);
+    await ContentInfoExtractor.loadDependencies(this.page as unknown as { commonObjs: PDFObjects; objs: PDFObjects; }, operatorList);
     this.fromOperatorList(operatorList);
     return this.contentInfo;
   }
@@ -201,7 +235,7 @@ export class ContentInfoExtractor {
   //private rectangle(x:number, y:number, width:number, height:number) {
   //}
   private stroke() {
-
+    //this.contentInfo.push(new PathInfo());
   }
   private closeStroke() {
     this.closePath();
@@ -250,14 +284,21 @@ export class ContentInfoExtractor {
     this.state.wordSpacing = spacing;
   }
   private setHScale(scale:number) {
-    this.state.hScale = scale;
+    this.state.hScale = scale / 100;
   }
   private setLeading(leading:number) {
     this.state.leading = -leading;
   }
   private setFont(fontName:string, fontSize:number) {
     const font = this.commonObjs.get(fontName);
-    // TODO
+    this.state.font = font as Font;
+    this.state.fontSize = fontSize;
+    if (fontSize < 0) {
+      fontSize = -fontSize;
+      this.state.fontDirection = -1;
+    } else {
+      this.state.fontDirection = 1;
+    }
   }
   private setTextRenderingMode(mode:TextRenderingMode) {
     this.state.textRenderingMode  = mode;
@@ -272,21 +313,79 @@ export class ContentInfoExtractor {
     this.moveText(x, y);
   }
   private setTextMatrix(scaleX:number, shearX:number, shearY:number, scaleY:number, offsetX:number, offsetY:number) {
-    this.state.textTransformMatrix = [scaleX, shearX, shearY, scaleY, offsetX, offsetY];
+    //this.state.textTransformMatrix = [scaleX, shearX, shearY, scaleY, offsetX, offsetY];
+    // TODO
   }
   private nextLine() {
     this.moveText(0, this.state.leading);
   }
   private showText(glyphs:(null|number|Glyph)[]) {
+    const font = this.state.font;
+    if (font == null) return;
+    const fontSize = this.state.fontSize;
+    if (fontSize === 0) return;
+    const charSpacing = this.state.charSpacing;
+    const wordSpacing = this.state.wordSpacing;
+    const fontDirection = this.state.fontDirection;
+    
+    const hScale = this.state.hScale * fontDirection;
+    const vertical = font.vertical;
+    const spacingDir = vertical ? 1 : -1;
+    const defaultVMetrics = font.defaultVMetrics;
+    const widthAdvanceScale = fontSize * this.state.fontMatrix[0];
+
+    let textContent = '';
+
+    let x = 0;
     for(const glyph of glyphs) {
       if(glyph === null) {
-
+        x += fontDirection * wordSpacing;
       } else if(typeof glyph === 'number') {
-
+        x += (spacingDir * glyph * fontSize) / 1000;
       } else {
+        const spacing = (glyph.isSpace ? wordSpacing : 0) + charSpacing;
+        const character = glyph.fontChar;
+        let scaledX, scaledY;
+        let width = glyph.width;
+        if (vertical) {
+          let vx;
+          const vmetric = glyph.vmetric || defaultVMetrics;
+          vx = glyph.vmetric ? vmetric[1] : width * 0.5;
+          vx = -vx * widthAdvanceScale;
+          const vy = vmetric[2] * widthAdvanceScale;
 
+          width = vmetric ? -vmetric[0] : width;
+          scaledX = vx / 1;
+          scaledY = (x + vy) / 1;
+        } else {
+          scaledX = x / 1;
+          scaledY = 0;
+        }
+
+        if (glyph.isInFont || font.missingFile) {
+          // TODO
+          textContent += character;
+        } else {
+          
+        }
+
+        let charWidth;
+        if (vertical) {
+          charWidth = width * widthAdvanceScale - spacing * fontDirection;
+        } else {
+          charWidth = width * widthAdvanceScale + spacing * fontDirection;
+        }
+
+        x += charWidth;
       }
     }
+    this.contentInfo.push(new TextContent(this.state.x, this.state.y, textContent));
+    if (vertical) {
+      this.state.y -= x;
+    } else {
+      this.state.x += x * hScale;
+    }
+    
   }
   private showSpacedText(glyphs:(null|number|Glyph)[]) {
     this.showText(glyphs);
