@@ -87,7 +87,7 @@ export class PdfPageData {
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
 	 * @returns {Promise<string[]>} an array with text from each side
 	 */
-	public static async ocr(pages: PdfPageData[], langs: OCRLang[]): Promise<string[]> {
+	public static async ocr(pages: PdfPageData[], langs: OCRLang[], asFullPage:boolean): Promise<string[]> {
 		return (await import('./tesseractjsocr').catch(() => {
 			throw new Error('tesseract.js is not installed');
 		})).tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
@@ -102,13 +102,16 @@ export class PdfPageData {
 	 * requires node-canvas/node-pureimage and tesseract.js as additional installation
 	 * 
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
+	 * @param {boolean} asFullPage - ocr the page as a whole and not individual image content (needs a canvas library)
 	 * @returns {Promise<string>} the result as text
 	 */
-	public async ocr(langs: OCRLang[]): Promise<string> {
-		const operatorList = await this.page.getOperatorList();
-		return (await import('./tesseractjsocr').catch(() => {
-			throw new Error('tesseract.js is not installed');
-		})).tesseractBuffer(await this.toJPEG(), langs);
+	public async ocr(langs: OCRLang[], asFullPage:boolean): Promise<string> {
+		if(asFullPage) {
+			return (await import('./tesseractjsocr').catch(() => {
+				throw new Error('tesseract.js is not installed');
+			})).tesseractBuffer(await this.toJPEG(), langs);
+		}
+		this.contentInfo();
 	}
 	
 	/**

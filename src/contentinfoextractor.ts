@@ -1,20 +1,16 @@
 import { OPS } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFOperatorList, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 
-// based on https://github.com/mozilla/pdf.js/blob/master/src/display/canvas.js and https://github.com/mozilla/pdf.js/blob/master/src/display/svg.js
-
-const IDENTITY_MATRIX:[number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0];
-const FONT_IDENTITY_MATRIX:[number, number, number, number, number, number] = [0.001, 0, 0, 0.001, 0, 0];
-
 interface Glyph {
   originalCharCode:number;
   fontChar:string;
   unicode:string;
-  accent:number | null;
+  accent?:number;
   width:number;
   isSpace:boolean;
   isInFont:boolean;
   vmetric:[number, number, number];
+  operatorListId:string;
 }
 interface PDFObjects {
   get(objId:string, callback:(data:unknown) => void):null;
@@ -22,19 +18,87 @@ interface PDFObjects {
   has(objId:string):boolean;
   resolve(objId:string, data:unknown):void;
 }
+interface CMap {
+  addCodespaceRange(n:number, low:number, high:number):void;
+  mapCidRange(low:number, high:number, dstLow:number):void;
+  mapBfRange(low:number, high:number, dstLow:number):void;
+  mapBfRangeToArray(low:number, high:number, array:number[]):void;
+  mapOne(src:number, dst:number):void;
+  lookup(code:number):number;
+  contains(code:number):boolean;
+  forEach(callback:(i:number, m:number) => void):void;
+  charCodeOf(value:number):number;
+  getMap():{
+    [key:number]:number;
+  };
+  readCharCode(str:string, offset:number, out:{
+    charcode:number;
+    length:number;
+  }):void;
+  getCharCodeLength(charCode:number):number;
+  length:number;
+  isIdentityCMap:boolean;
+}
+interface ToUnicodeMap {
+  length:number;
+  forEach(callback:(char1:number, char2:number) => void):void;
+  get(i:number):string|undefined;
+  has(i:number):boolean;
+  charCodeOf(v:number|unknown):number;
+  amend(map:number[]|string[]):void;
+}
 interface Font {
-  data:BufferSource;
-  vertical:boolean;
-  defaultVMetrics:[number, number, number];
-  missingFile:boolean;
-  mimetype:string;
-  loadedName:string;
-  fallbackName:string;
-  fontMatrix:[number, number, number, number, number, number];
+  ascent:number;
+  bbox:[number, number, number, number];
   black:boolean;
   bold:boolean;
-  italic:boolean;
+  charProcOperatorList:{
+    [key:string]:PDFOperatorList;
+  };
+  cMap:CMap;
+  composite:boolean;
+  cssFontInfo: {
+    fontFamily:string;
+    fontWeight:number;
+    italicAngle:number;
+  };
+  data:BufferSource;
+  defaultEncoding:string;
+  defaultVMetrics:[number, number, number];
+  defaultWidth:number;
+  descent:number;
+  differences:{
+    [key:number]:string;
+  };
+  fallbackName:string;
+  fontMatrix?:[number, number, number, number, number, number];
+  fontType:FontType;
+  isMonospace:boolean;
+  isSerifFont:boolean;
+  isSymbolicFont:boolean;
   isType3Font:boolean;
+  italic:boolean;
+  loadedName:string;
+  mimetype:string;
+  missingFile:boolean;
+  name:string;
+  remeasure:boolean;
+  seacMap?: {
+    [key:number]:{
+      baseFontCharCode:number,
+      accentFontCharCode:number,
+      accentOffset:number,
+    };
+  };
+  subtype:string;
+  toFontChar?:{
+    [key:number]:number;
+  };
+  toUnicode?:ToUnicodeMap;
+  type:string;
+  vertical:boolean;
+  vmetrics:[number, number, number];
+  widths:number[];
 }
 
 export class ContentInfo {
@@ -52,6 +116,21 @@ export class TextContent extends ContentInfo {
     super(x, y);
     this.text = text;
   }
+}
+
+enum FontType {
+  CIDFONTTYPE0 = 'CIDFONTTYPE0',
+  CIDFONTTYPE0C = 'CIDFONTTYPE0C',
+  CIDFONTTYPE2 = 'CIDFONTTYPE2',
+  MMTYPE1 = 'MMTYPE1',
+  OPENTYPE = 'OPENTYPE',
+  TRUETYPE = 'TRUETYPE',
+  TYPE0 = 'TYPE0',
+  TYPE1 = 'TYPE1',
+  TYPE1C = 'TYPE1C',
+  TYPE1STANDARD = 'TYPE1STANDARD',
+  TYPE3 = 'TYPE3',
+  UNKNOWN = 'UNKNOWN',
 }
 
 export enum LineCap {
@@ -87,11 +166,15 @@ class ContentInfoExtractorState {
   miterLimit?:number;
   dashArray?:number[];
   dashPhase?:number;
-  transformMatrix:[number, number, number, number, number, number] = IDENTITY_MATRIX;
-  fontMatrix:[number, number, number, number, number, number] = FONT_IDENTITY_MATRIX;
+  transformMatrix?:[number, number, number, number, number, number];
+  textMatrix?:[number, number, number, number, number, number];
+  textMatrixScale:number = 1;
+  fontMatrix?:[number, number, number, number, number, number];
   path:([number, number, number, number]|[number, number, number, number, number, number])[] = [];
   pathOpen:boolean = true;
   leading:number = 0;
+  lineX:number = 0;
+  lineY:number = 0;
   x:number = 0;
   y:number = 0;
   strokeColor:number = 0;
@@ -206,14 +289,18 @@ export class ContentInfoExtractor {
   }
   private transform(scaleX:number, shearX:number, shearY:number, scaleY:number, offsetX:number, offsetY:number) {
     const oldMatrix = this.state.transformMatrix;
-    this.state.transformMatrix = [
-      oldMatrix[0] * scaleX + oldMatrix[2] * shearX,
-      oldMatrix[1] * scaleX + oldMatrix[3] * shearX,
-      oldMatrix[0] * shearY + oldMatrix[2] * scaleY,
-      oldMatrix[1] * shearY + oldMatrix[3] * scaleY,
-      oldMatrix[0] * offsetX + oldMatrix[2] * offsetY + oldMatrix[4],
-      oldMatrix[1] * offsetX + oldMatrix[3] * offsetY + oldMatrix[5],
-    ];
+    if(oldMatrix == null) {
+      this.state.transformMatrix = [scaleX, shearX, shearY, scaleY, offsetX, offsetY];
+    } else {
+      this.state.transformMatrix = [
+        oldMatrix[0] * scaleX + oldMatrix[2] * shearX,
+        oldMatrix[1] * scaleX + oldMatrix[3] * shearX,
+        oldMatrix[0] * shearY + oldMatrix[2] * scaleY,
+        oldMatrix[1] * shearY + oldMatrix[3] * scaleY,
+        oldMatrix[0] * offsetX + oldMatrix[2] * offsetY + oldMatrix[4],
+        oldMatrix[1] * offsetX + oldMatrix[3] * offsetY + oldMatrix[5],
+      ];
+    }
   }
   //private moveTo(x:number, y:number) {
   //}
@@ -307,14 +394,19 @@ export class ContentInfoExtractor {
     this.state.textRise = rise;
   }
   private moveText(x:number, y:number) {
+    this.state.x = this.state.lineX += x;
+    this.state.y = this.state.lineY += y;
   }
   private setLeadingMoveText(x:number, y:number) {
     this.setLeading(-y);
     this.moveText(x, y);
   }
   private setTextMatrix(scaleX:number, shearX:number, shearY:number, scaleY:number, offsetX:number, offsetY:number) {
-    //this.state.textTransformMatrix = [scaleX, shearX, shearY, scaleY, offsetX, offsetY];
-    // TODO
+    this.state.textMatrix = [scaleX, shearX, shearY, scaleY, offsetX, offsetY];
+    this.state.textMatrixScale = Math.hypot(scaleX, shearX);
+
+    this.state.x = this.state.lineX = 0;
+    this.state.y = this.state.lineY = 0;
   }
   private nextLine() {
     this.moveText(0, this.state.leading);
@@ -332,7 +424,7 @@ export class ContentInfoExtractor {
     const vertical = font.vertical;
     const spacingDir = vertical ? 1 : -1;
     const defaultVMetrics = font.defaultVMetrics;
-    const widthAdvanceScale = fontSize * this.state.fontMatrix[0];
+    const widthAdvanceScale = fontSize * (this.state.fontMatrix == null ? 1 : this.state.fontMatrix[0]);
 
     let textContent = '';
 
@@ -410,9 +502,11 @@ export class ContentInfoExtractor {
   }
   private setFillColorN() {
   }
-  private setStrokeGray() {
+  private setStrokeGray(g:number) {
+    this.setStrokeRGBColor(g, g, g);
   }
-  private setFillGray() {
+  private setFillGray(g:number) {
+    this.setFillRGBColor(g, g, g);
   }
   private setStrokeAlpha(a:number) {
     this.state.strokeColor = (a << 24) | (this.state.strokeColor & 0xffffff);
@@ -766,10 +860,10 @@ export class ContentInfoExtractor {
           //this.setFillColorN();
           break;
         case OPS.setStrokeGray:
-          this.setStrokeGray();
+          this.setStrokeGray(args[0]);
           break;
         case OPS.setFillGray:
-          this.setFillGray();
+          this.setFillGray(args[0]);
           break;
         case OPS.setStrokeRGBColor:
           this.setStrokeRGBColor(args[0], args[1], args[2]);
