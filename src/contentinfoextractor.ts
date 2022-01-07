@@ -361,6 +361,13 @@ export class ContentInfoExtractor {
     this.clipType = ClipType.EO;
   }
   private beginText() {
+    this.state.x = this.state.lineX = 0;
+    this.state.y = this.state.lineY = 0;
+    this.state.textMatrix = undefined;
+    //this.state.lineMatrix = IDENTITY_MATRIX;
+    this.state.textMatrixScale = 1;
+    //this.state.xcoords = [];
+    //this.state.ycoords = [];
   }
   private endText() {
   }
@@ -482,13 +489,17 @@ export class ContentInfoExtractor {
   private showSpacedText(glyphs:(null|number|Glyph)[]) {
     this.showText(glyphs);
   }
-  private nextLineShowText() {
+  private nextLineShowText(glyphs: (number | Glyph | null)[]) {
+    this.nextLine();
+    this.showText(glyphs);
   }
-  private nextLineSetSpacingShowText() {
+  private nextLineSetSpacingShowText(wordSpacing:number, charSpacing:number, glyphs: (number | Glyph | null)[]) {
+    this.setWordSpacing(wordSpacing);
+    this.setCharSpacing(charSpacing);
   }
-  private setCharWidth() {
+  private setCharWidth(xWidth:number, yWidth:number) {
   }
-  private setCharWidthAndBounds() {
+  private setCharWidthAndBounds(xWidth:number, yWidth:number, llx:number, lly:number, urx:number, ury:number) {
   }
   private setStrokeColorSpace() {
   }
@@ -824,16 +835,16 @@ export class ContentInfoExtractor {
           this.showSpacedText(args[0]);
           break;
         case OPS.nextLineShowText:
-          this.nextLineShowText();
+          this.nextLineShowText(args[0]);
           break;
         case OPS.nextLineSetSpacingShowText:
-          this.nextLineSetSpacingShowText();
+          this.nextLineSetSpacingShowText(args[0], args[1], args[2]);
           break;
         case OPS.setCharWidth:
-          this.setCharWidth();
+          this.setCharWidth(args[0], args[1]);
           break;
         case OPS.setCharWidthAndBounds:
-          this.setCharWidthAndBounds();
+          this.setCharWidthAndBounds(args[0], args[1], args[2], args[3], args[4], args[5]);
           break;
         case OPS.setStrokeColorSpace:
           this.setStrokeColorSpace();
