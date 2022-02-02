@@ -102,16 +102,16 @@ export class PdfPageData {
 	 * requires node-canvas/node-pureimage and tesseract.js as additional installation
 	 * 
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
-	 * @param {boolean} asFullPage - ocr the page as a whole and not individual image content (needs a canvas library)
+	 * @param {boolean} [asFullPage=false] - ocr the page as a whole and not individual image content (needs a canvas library)
 	 * @returns {Promise<string>} the result as text
 	 */
-	public async ocr(langs: OCRLang[], asFullPage:boolean): Promise<string> {
+	public async ocr(langs: OCRLang[], asFullPage:boolean = false): Promise<string> {
 		if(asFullPage) {
 			return (await import('./tesseractjsocr').catch(() => {
 				throw new Error('tesseract.js is not installed');
 			})).tesseractBuffer(await this.toJPEG(), langs);
 		}
-		this.contentInfo();
+		return '';
 	}
 	
 	/**

@@ -102,18 +102,37 @@ interface Font {
 }
 
 export class ContentInfo {
-  x:number;
-  y:number;
-  public constructor(x:number, y:number) {
-    this.x = x;
-    this.y = y;
+  
+}
+export class PathInfo extends ContentInfo {
+  path:([number, number, number, number]|[number, number, number, number, number, number])[];
+  stroke:{
+    color:number;
+    width:number;
+  }|null;
+  fill:{
+    color:number;
+  }|null;
+  public constructor(
+    path:([number, number, number, number]|[number, number, number, number, number, number])[],
+    stroke:{
+      color:number;
+      width:number;
+    }|null,
+    fill:{
+      color:number;
+    }|null
+  ) {
+    super();
+    this.path = path;
+    this.stroke = stroke;
+    this.fill = fill;
   }
 }
-export class PathInfo extends ContentInfo {}
 export class TextContent extends ContentInfo {
   text:string;
-  public constructor(x:number, y:number, text:string) {
-    super(x, y);
+  public constructor(text:string) {
+    super();
     this.text = text;
   }
 }
@@ -160,7 +179,8 @@ export enum TextRenderingMode {
   ADD_TO_PATH_FLAG = 4,
 };
 class ContentInfoExtractorState {
-  lineWidth?:number;
+  eoFill:boolean = false;
+  lineWidth:number = 1;
   lineCap?:LineCap;
   lineJoin?:LineJoin;
   miterLimit?:number;
@@ -253,12 +273,12 @@ export class ContentInfoExtractor {
           const d = value as [number[], number];
           this.setDash(d[0], d[1]);
           break;
-        case 'RI':
-          this.setRenderingIntent(value as boolean);
-          break;
-        case 'FL':
-          this.setFlatness(value as boolean);
-          break;
+        //case 'RI':
+        //  this.setRenderingIntent(value as boolean);
+        //  break;
+        //case 'FL':
+        //  this.setFlatness(value as boolean);
+        //  break;
         case 'Font':
           const f = value as [string, number];
           this.setFont(f[0], f[1]);
@@ -322,7 +342,11 @@ export class ContentInfoExtractor {
   //private rectangle(x:number, y:number, width:number, height:number) {
   //}
   private stroke() {
-    //this.contentInfo.push(new PathInfo());
+    this.contentInfo.push(new PathInfo(this.state.path, {
+      color: this.state.strokeColor,
+      width: this.state.lineWidth
+    }, null));
+    this.endPath();
   }
   private closeStroke() {
     this.closePath();
@@ -330,15 +354,24 @@ export class ContentInfoExtractor {
   }
   private fill() {
     
+    this.state.eoFill = false;
+    this.endPath();
   }
   private eoFill() {
-  }
-  private fillStroke() {
-    this.stroke();
+    this.state.eoFill = true;
     this.fill();
   }
+  private fillStroke() {
+    this.contentInfo.push(new PathInfo(this.state.path, {
+      color: this.state.strokeColor,
+      width: this.state.lineWidth
+    }, {
+      color: this.state.fillColor
+    }));
+  }
   private eoFillStroke() {
-    
+    this.state.eoFill = true;
+    this.fillStroke();
   }
   private closeFillStroke() {
     this.closePath();
@@ -478,7 +511,7 @@ export class ContentInfoExtractor {
         x += charWidth;
       }
     }
-    this.contentInfo.push(new TextContent(this.state.x, this.state.y, textContent));
+    this.contentInfo.push(new TextContent(textContent));
     if (vertical) {
       this.state.y -= x;
     } else {
@@ -498,6 +531,7 @@ export class ContentInfoExtractor {
     this.setCharSpacing(charSpacing);
   }
   private setCharWidth(xWidth:number, yWidth:number) {
+    // not used
   }
   private setCharWidthAndBounds(xWidth:number, yWidth:number, llx:number, lly:number, urx:number, ury:number) {
   }
@@ -717,12 +751,12 @@ export class ContentInfoExtractor {
         case OPS.setDash:
           this.setDash(args[0], args[1]);
           break;
-        case OPS.setRenderingIntent:
-          this.setRenderingIntent(args[0]);
-          break;
-        case OPS.setFlatness:
-          this.setFlatness(args[0]);
-          break;
+        //case OPS.setRenderingIntent:
+        //  this.setRenderingIntent(args[0]);
+        //  break;
+        //case OPS.setFlatness:
+        //  this.setFlatness(args[0]);
+        //  break;
         case OPS.setGState:
           this.setGState(args[0]);
           break;
@@ -840,9 +874,9 @@ export class ContentInfoExtractor {
         case OPS.nextLineSetSpacingShowText:
           this.nextLineSetSpacingShowText(args[0], args[1], args[2]);
           break;
-        case OPS.setCharWidth:
-          this.setCharWidth(args[0], args[1]);
-          break;
+        //case OPS.setCharWidth:
+        //  this.setCharWidth(args[0], args[1]);
+        //  break;
         case OPS.setCharWidthAndBounds:
           this.setCharWidthAndBounds(args[0], args[1], args[2], args[3], args[4], args[5]);
           break;
