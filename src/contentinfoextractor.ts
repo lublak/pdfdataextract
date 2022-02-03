@@ -106,6 +106,7 @@ export class ContentInfo {
 }
 export class PathInfo extends ContentInfo {
   path:([number, number, number, number]|[number, number, number, number, number, number])[];
+  open:boolean;
   stroke:{
     color:number;
     width:number;
@@ -115,16 +116,19 @@ export class PathInfo extends ContentInfo {
   }|null;
   public constructor(
     path:([number, number, number, number]|[number, number, number, number, number, number])[],
+    open:boolean,
     stroke:{
       color:number;
       width:number;
     }|null,
     fill:{
       color:number;
+      eo:boolean;
     }|null
   ) {
     super();
     this.path = path;
+    this.open = open;
     this.stroke = stroke;
     this.fill = fill;
   }
@@ -179,7 +183,6 @@ export enum TextRenderingMode {
   ADD_TO_PATH_FLAG = 4,
 };
 class ContentInfoExtractorState {
-  eoFill:boolean = false;
   lineWidth:number = 1;
   lineCap?:LineCap;
   lineJoin?:LineJoin;
@@ -342,7 +345,7 @@ export class ContentInfoExtractor {
   //private rectangle(x:number, y:number, width:number, height:number) {
   //}
   private stroke() {
-    this.contentInfo.push(new PathInfo(this.state.path, {
+    this.contentInfo.push(new PathInfo(this.state.path, this.state.pathOpen, {
       color: this.state.strokeColor,
       width: this.state.lineWidth
     }, null));
@@ -353,25 +356,38 @@ export class ContentInfoExtractor {
     this.stroke();
   }
   private fill() {
-    
-    this.state.eoFill = false;
+    this.contentInfo.push(new PathInfo(this.state.path, this.state.pathOpen, null, {
+      color: this.state.fillColor,
+      eo: false,
+    }));
     this.endPath();
   }
   private eoFill() {
-    this.state.eoFill = true;
-    this.fill();
+    this.contentInfo.push(new PathInfo(this.state.path, this.state.pathOpen, null, {
+      color: this.state.fillColor,
+      eo: true,
+    }));
+    this.endPath();
   }
   private fillStroke() {
-    this.contentInfo.push(new PathInfo(this.state.path, {
+    this.contentInfo.push(new PathInfo(this.state.path, this.state.pathOpen, {
       color: this.state.strokeColor,
       width: this.state.lineWidth
     }, {
-      color: this.state.fillColor
+      color: this.state.fillColor,
+      eo: false,
     }));
+    this.endPath();
   }
   private eoFillStroke() {
-    this.state.eoFill = true;
-    this.fillStroke();
+    this.contentInfo.push(new PathInfo(this.state.path, this.state.pathOpen, {
+      color: this.state.strokeColor,
+      width: this.state.lineWidth
+    }, {
+      color: this.state.fillColor,
+      eo: true,
+    }));
+    this.endPath();
   }
   private closeFillStroke() {
     this.closePath();
