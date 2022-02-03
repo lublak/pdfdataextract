@@ -536,15 +536,13 @@ export class ContentInfoExtractor {
     
   }
   private showSpacedText(glyphs:(null|number|Glyph)[]) {
-    this.showText(glyphs);
+    // not used
   }
   private nextLineShowText(glyphs: (number | Glyph | null)[]) {
-    this.nextLine();
-    this.showText(glyphs);
+    // not used
   }
   private nextLineSetSpacingShowText(wordSpacing:number, charSpacing:number, glyphs: (number | Glyph | null)[]) {
-    this.setWordSpacing(wordSpacing);
-    this.setCharSpacing(charSpacing);
+    // not used
   }
   private setCharWidth(xWidth:number, yWidth:number) {
     // not used
@@ -552,22 +550,28 @@ export class ContentInfoExtractor {
   private setCharWidthAndBounds(xWidth:number, yWidth:number, llx:number, lly:number, urx:number, ury:number) {
   }
   private setStrokeColorSpace() {
+    // not used
   }
   private setFillColorSpace() {
+    // not used
   }
   private setStrokeColor() {
+    // not used
   }
   private setStrokeColorN() {
+    // not used
   }
   private setFillColor() {
+    // not used
   }
   private setFillColorN() {
+    // not used
   }
   private setStrokeGray(g:number) {
-    this.setStrokeRGBColor(g, g, g);
+    // not used
   }
   private setFillGray(g:number) {
-    this.setFillRGBColor(g, g, g);
+    // not used
   }
   private setStrokeAlpha(a:number) {
     this.state.strokeColor = (a << 24) | (this.state.strokeColor & 0xffffff);
@@ -582,20 +586,10 @@ export class ContentInfoExtractor {
     this.state.fillColor = ((this.state.fillColor >>> 24) << 24) | (r << 16) | (g << 8) | b;
   }
   private setStrokeCMYKColor(c:number, m:number, y:number, k:number) {
-    c /= 100;
-    m /= 100;
-    y /= 100;
-    k /= 100;
-    k = (1 - k) + k;
-    this.setStrokeRGBColor(Math.round(255 * Math.min(1, 1 - c * k)), Math.round(255 * Math.min(1, 1 - m * k)), Math.round(255 * Math.min(1, 1 - y * k)));
+    // not used
   }
   private setFillCMYKColor(c:number, m:number, y:number, k:number) {
-    c /= 100;
-    m /= 100;
-    y /= 100;
-    k /= 100;
-    k = (1 - k) + k;
-    this.setFillRGBColor(Math.round(255 * Math.min(1, 1 - c * k)), Math.round(255 * Math.min(1, 1 - m * k)), Math.round(255 * Math.min(1, 1 - y * k)));
+    // not used
   }
   private shadingFill(shadingName:string) {
     const shading = this.commonObjs.get(shadingName);
@@ -605,12 +599,16 @@ export class ContentInfoExtractor {
   private beginImageData() {
   }
   private endInlineImage() {
+    // not used
   }
   private paintXObject() {
+    // not used
   }
   private markPoint() {
+    // not used
   }
   private markPointProps() {
+    // not used
   }
   private beginMarkedContent() {
   }
@@ -619,8 +617,10 @@ export class ContentInfoExtractor {
   private endMarkedContent() {
   }
   private beginCompat() {
+    // not used
   }
   private endCompat() {
+    // not used
   }
   private paintFormXObjectBegin(matrix:[number, number, number, number, number, number]|unknown, bbox:[number, number, number, number]) {
   }
@@ -881,63 +881,57 @@ export class ContentInfoExtractor {
         case OPS.showText:
           this.showText(args[0]);
           break;
-        case OPS.showSpacedText:
-          this.showSpacedText(args[0]);
-          break;
-        case OPS.nextLineShowText:
-          this.nextLineShowText(args[0]);
-          break;
-        case OPS.nextLineSetSpacingShowText:
-          this.nextLineSetSpacingShowText(args[0], args[1], args[2]);
-          break;
+        //case OPS.showSpacedText:
+        //  this.showSpacedText(args[0]);
+        //  break;
+        //case OPS.nextLineShowText:
+        //  this.nextLineShowText(args[0]);
+        //  break;
+        //case OPS.nextLineSetSpacingShowText:
+        //  this.nextLineSetSpacingShowText(args[0], args[1], args[2]);
+        //  break;
         //case OPS.setCharWidth:
         //  this.setCharWidth(args[0], args[1]);
         //  break;
         case OPS.setCharWidthAndBounds:
           this.setCharWidthAndBounds(args[0], args[1], args[2], args[3], args[4], args[5]);
           break;
-        case OPS.setStrokeColorSpace:
-          this.setStrokeColorSpace();
-          break;
-        case OPS.setFillColorSpace:
-          this.setFillColorSpace();
-          break;
-        case OPS.setStrokeColor:
-          this.setStrokeColor();
-          break;
-        case OPS.setStrokeColorN:
-          if(args[0] === 'TilingPattern') {
-
-          }
-          //this.setStrokeColorN();
-          break;
-        case OPS.setFillColor:
-          this.setFillColor();
-          break;
-        case OPS.setFillColorN:
-          if(args[0] === 'TilingPattern') {
-            
-          }
-          //this.setFillColorN();
-          break;
-        case OPS.setStrokeGray:
-          this.setStrokeGray(args[0]);
-          break;
-        case OPS.setFillGray:
-          this.setFillGray(args[0]);
-          break;
+        //case OPS.setStrokeColorSpace:
+        //  this.setStrokeColorSpace();
+        //  break;
+        //case OPS.setFillColorSpace:
+        //  this.setFillColorSpace();
+        //  break;
+        //case OPS.setStrokeColor:
+        //  this.setStrokeColor();
+        //  break;
+        //case OPS.setStrokeColorN:
+        //  this.setStrokeColorN();
+        //  break;
+        //case OPS.setFillColor:
+        //  this.setFillColor();
+        //  break;
+        //case OPS.setFillColorN:
+        //  this.setFillColorN();
+        //  break;
+        //case OPS.setStrokeGray:
+        //  this.setStrokeGray(args[0]);
+        //  break;
+        //case OPS.setFillGray:
+        //  this.setFillGray(args[0]);
+        //  break;
         case OPS.setStrokeRGBColor:
           this.setStrokeRGBColor(args[0], args[1], args[2]);
           break;
         case OPS.setFillRGBColor:
           this.setFillRGBColor(args[0], args[1], args[2]);
           break;
-        case OPS.setStrokeCMYKColor:
-          this.setStrokeCMYKColor(args[0], args[1], args[2], args[3]);
-          break;
-        case OPS.setFillCMYKColor:
-          this.setFillCMYKColor(args[0], args[1], args[2], args[3]);
-          break;
+        //case OPS.setStrokeCMYKColor:
+        //  this.setStrokeCMYKColor(args[0], args[1], args[2], args[3]);
+        //  break;
+        //case OPS.setFillCMYKColor:
+        //  this.setFillCMYKColor(args[0], args[1], args[2], args[3]);
+        //  break;
         case OPS.shadingFill:
           this.shadingFill(args[0]);
           break;
@@ -947,18 +941,18 @@ export class ContentInfoExtractor {
         case OPS.beginImageData:
           this.beginImageData();
           break;
-        case OPS.endInlineImage:
-          this.endInlineImage();
-          break;
-        case OPS.paintXObject:
-          this.paintXObject();
-          break;
-        case OPS.markPoint:
-          this.markPoint();
-          break;
-        case OPS.markPointProps:
-          this.markPointProps();
-          break;
+        //case OPS.endInlineImage:
+        //  this.endInlineImage();
+        //  break;
+        //case OPS.paintXObject:
+        //  this.paintXObject();
+        //  break;
+        //case OPS.markPoint:
+        //  this.markPoint();
+        //  break;
+        //case OPS.markPointProps:
+        //  this.markPointProps();
+        //  break;
         case OPS.beginMarkedContent:
           this.beginMarkedContent();
           break;
@@ -968,12 +962,12 @@ export class ContentInfoExtractor {
         case OPS.endMarkedContent:
           this.endMarkedContent();
           break;
-        case OPS.beginCompat:
-          this.beginCompat();
-          break;
-        case OPS.endCompat:
-          this.endCompat();
-          break;
+        //case OPS.beginCompat:
+        //  this.beginCompat();
+        //  break;
+        //case OPS.endCompat:
+        //  this.endCompat();
+        //  break;
         case OPS.paintFormXObjectBegin:
           this.paintFormXObjectBegin(args[0], args[1]);
           break;
