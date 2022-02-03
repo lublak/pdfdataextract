@@ -613,42 +613,42 @@ export interface Info {
 	 * @readonly
 	 * @type {string | undefined}
 	 */
-	readonly PDFFormatVersion: string,
+	readonly PDFFormatVersion?: string,
 	/**
 	 * if it is linearized
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsLinearized: boolean,
+	readonly IsLinearized?: boolean,
 	/**
 	 * if acro form is present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsAcroFormPresent: boolean
+	readonly IsAcroFormPresent?: boolean
 	/**
 	 * if xfa form is present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsXFAPresent: boolean,
+	readonly IsXFAPresent?: boolean,
 	/**
 	 * if collection is present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsCollectionPresent: boolean,
+	readonly IsCollectionPresent?: boolean,
 	/**
 	 * if signatures are present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsSignaturesPresent: boolean,
+	readonly IsSignaturesPresent?: boolean,
 	readonly [key: string]: string | number | boolean | Name | undefined,
 }
 
