@@ -13,6 +13,9 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
 			password: '123456',
 			verbosity: VerbosityLevel.ERRORS,
 		});
+		(await extractor.getPageData()).forEach(async cf => {
+			console.log(await cf?.contentInfo());
+		});
 		expect(extractor.pages).toEqual(2);
 		const text = await extractor.getText();
 		expect(text.length).toEqual(2);

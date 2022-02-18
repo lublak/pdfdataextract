@@ -298,6 +298,20 @@ export class ContentInfoExtractor {
           break;
         case 'TR':
           break;
+        case 'OP':
+        case 'op':
+        case 'OPM':
+        case 'BG':
+        case 'BG2':
+        case 'UCR':
+        case 'UCR2':
+        case 'TR2':
+        case 'HT':
+        case 'SM':
+        case 'SA':
+        case 'AIS':
+        case 'TK':
+          break;
       }
     }
   }
@@ -413,10 +427,7 @@ export class ContentInfoExtractor {
     this.state.x = this.state.lineX = 0;
     this.state.y = this.state.lineY = 0;
     this.state.textMatrix = undefined;
-    //this.state.lineMatrix = IDENTITY_MATRIX;
     this.state.textMatrixScale = 1;
-    //this.state.xcoords = [];
-    //this.state.ycoords = [];
   }
   private endText() {
   }
@@ -595,8 +606,10 @@ export class ContentInfoExtractor {
     const shading = this.commonObjs.get(shadingName);
   }
   private beginInlineImage() {
+    // not used
   }
   private beginImageData() {
+    // not used
   }
   private endInlineImage() {
     // not used
@@ -935,12 +948,12 @@ export class ContentInfoExtractor {
         case OPS.shadingFill:
           this.shadingFill(args[0]);
           break;
-        case OPS.beginInlineImage:
-          this.beginInlineImage();
-          break;
-        case OPS.beginImageData:
-          this.beginImageData();
-          break;
+        //case OPS.beginInlineImage:
+        //  this.beginInlineImage();
+        //  break;
+        //case OPS.beginImageData:
+        //  this.beginImageData();
+        //  break;
         //case OPS.endInlineImage:
         //  this.endInlineImage();
         //  break;
