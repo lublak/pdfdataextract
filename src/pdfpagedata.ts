@@ -3,6 +3,15 @@ import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
 import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
+import { SVGGraphics } from 'pdfjs-dist/legacy/build/pdf';
+
+interface SVGElementSerializer {
+	getNext():string|null;
+}
+
+interface SVGElement {
+	getSerializer():SVGElementSerializer;
+}
 
 /**
  * pdf data information per page
@@ -147,5 +156,25 @@ export class PdfPageData {
 			canvasFactory: new CanvasFactory()
 		}).promise;
 		return canvas.toPNG();
+	}
+
+	public async toSVG():Promise<string> {
+		var result = '';
+		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const opList = await this.page.getOperatorList();
+    const svgGfx = new SVGGraphics(
+      this.page.commonObjs,
+      this.page.objs,
+      true
+    );
+    svgGfx.embedFonts = true;
+		const svg:SVGElement = await svgGfx.getSVG(opList, viewport);
+    const serializer = svg.getSerializer();
+		var chunk = serializer.getNext();
+		while(chunk != null) {
+			result += chunk;
+			chunk = serializer.getNext();
+		}
+		return result;
 	}
 }
