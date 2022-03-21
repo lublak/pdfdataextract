@@ -101,6 +101,21 @@ interface Font {
   widths:number[];
 }
 
+
+export enum ImageKind {
+  GRAYSCALE_1BPP = 1,
+  RGB_24BPP = 2,
+  RGBA_32BPP = 3,
+}
+
+interface ImageData {
+  width:number;
+  height:number;
+  // GRAYSCALE_1BPP
+  kind?:ImageKind;
+  data:Uint8Array;
+}
+
 export class ContentInfo {
   
 }
@@ -138,6 +153,19 @@ export class TextContent extends ContentInfo {
   public constructor(text:string) {
     super();
     this.text = text;
+  }
+}
+export class ImageContent extends ContentInfo {
+  width:number;
+  height:number;
+  kind:ImageKind;
+  data:Uint8Array;
+  public constructor(width:number, height:number, kind:ImageKind = ImageKind.GRAYSCALE_1BPP, data:Uint8Array) {
+    super();
+    this.width = width;
+    this.height = height;
+    this.kind = kind;
+    this.data = data;
   }
 }
 
@@ -218,10 +246,12 @@ export class ContentInfoExtractor {
   private stateStack:ContentInfoExtractorState[] = [];
   private page:PDFPageProxy;
   private commonObjs:PDFObjects;
+  private objs:PDFObjects;
 
   public constructor(page:PDFPageProxy) {
     this.page = page;
     this.commonObjs = page.commonObjs;
+    this.objs = page.objs as unknown as PDFObjects;
   }
 
   public async getContentInfo():Promise<ContentInfo[]> {
@@ -652,20 +682,26 @@ export class ContentInfoExtractor {
   private endAnnotation() {
   }
   private paintJpegXObject() {
+    // not used
   }
   private paintImageMaskXObject() {
   }
   private paintImageMaskXObjectGroup() {
   }
   private paintImageXObject(imageName:string) {
+    this.paintInlineImageXObject((imageName.startsWith('g_') ? this.commonObjs.get(imageName) : this.objs.get(imageName)) as ImageData);
   }
-  private paintInlineImageXObject(imageName:string) {
+  private paintInlineImageXObject(imageData:ImageData) {
+    this.contentInfo.push(new ImageContent(imageData.width, imageData.height, imageData.kind, imageData.data));
   }
   private paintInlineImageXObjectGroup() {
+    // not used
   }
   private paintImageXObjectRepeat() {
+    // not used
   }
   private paintImageMaskXObjectRepeat() {
+    // not used
   }
   private paintSolidColorImageMask() {
   }
@@ -1005,9 +1041,9 @@ export class ContentInfoExtractor {
         case OPS.endAnnotation:
           this.endAnnotation();
           break;
-        case OPS.paintJpegXObject:
-          this.paintJpegXObject();
-          break;
+        //case OPS.paintJpegXObject:
+        //  this.paintJpegXObject();
+        //  break;
         case OPS.paintImageMaskXObject:
           this.paintImageMaskXObject();
           break;
@@ -1017,18 +1053,18 @@ export class ContentInfoExtractor {
         case OPS.paintImageXObject:
           this.paintImageXObject(args[0]);
           break;
-        case OPS.paintInlineImageXObject:
-          this.paintInlineImageXObject(args[0]);
-          break;
-        case OPS.paintInlineImageXObjectGroup:
-          this.paintInlineImageXObjectGroup();
-          break;
-        case OPS.paintImageXObjectRepeat:
-          this.paintImageXObjectRepeat();
-          break;
-        case OPS.paintImageMaskXObjectRepeat:
-          this.paintImageMaskXObjectRepeat();
-          break;
+        //case OPS.paintInlineImageXObject:
+        //  this.paintInlineImageXObject(args[0]);
+        //  break;
+        //case OPS.paintInlineImageXObjectGroup:
+        //  this.paintInlineImageXObjectGroup(args[0], args[1]);
+        //  break;
+        //case OPS.paintImageXObjectRepeat:
+        //  this.paintImageXObjectRepeat(args[0], args[1], args[2], args[3]);
+        //  break;
+        //case OPS.paintImageMaskXObjectRepeat:
+        //  this.paintImageMaskXObjectRepeat();
+        //  break;
         case OPS.paintSolidColorImageMask:
           this.paintSolidColorImageMask();
           break;

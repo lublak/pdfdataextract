@@ -103,7 +103,7 @@ export class PdfPageData {
 	}
 
 	public async contentInfo():Promise<ContentInfo[]> {
-		return await new ContentInfoExtractor(this.page).getContentInfo();
+		return new ContentInfoExtractor(this.page).getContentInfo();
 	}
 
 	/**
