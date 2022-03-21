@@ -32,7 +32,6 @@ export class PdfPageData {
 		const sortOption: Sort | null = typeof sort === 'boolean' ? (sort ? Sort.ASC : null) : sort;
 		return this.page.getTextContent({
 			disableCombineTextItems: false,
-			normalizeWhitespace: false,
 			includeMarkedContent: false,
 		}).then((textContent: TextContent)  => {
 			const items: TextItem[] = textContent.items as TextItem[];
