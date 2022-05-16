@@ -768,7 +768,6 @@ export class ContentInfoExtractor {
     }
   }
 
-
   private static async loadDependencies(data: {
     commonObjs:PDFObjects,
     objs:PDFObjects,
