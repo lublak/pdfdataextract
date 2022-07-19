@@ -36,7 +36,7 @@ export interface CanvasApi {
  */
 export class CanvasFactory {
 	/**
-	 * the class to create the canvasapi defaults to pureimage or if installed node-canvas
+	 * the class to create the {CanvasApi} defaults to node-canvas or pureimage if installed
 	 */
 	static canvasApi?: { new(width: number, height: number): CanvasApi } | null;
 	/**

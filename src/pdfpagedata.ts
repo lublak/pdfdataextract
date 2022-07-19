@@ -4,6 +4,7 @@ import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
 import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
 import { SVGGraphics } from 'pdfjs-dist/legacy/build/pdf';
+import { OcrApi, OcrFactory } from './ocrfactory';
 
 interface SVGElementSerializer {
 	getNext(): string|null;
@@ -101,7 +102,9 @@ export class PdfPageData {
 			throw new Error('tesseract.js is not installed');
 		}));
 		if (asFullPage) {
-			return tesseract.tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
+			if (!OcrFactory.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
+			const ocr:OcrApi = new OcrFactory.ocrApi();
+			return ocr.ocrBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
 		} else {
 			// TODO
 			return [];
@@ -125,9 +128,10 @@ export class PdfPageData {
 	 */
 	public async ocr(langs: OCRLang[], asFullPage: boolean = false): Promise<string> {
 		if (asFullPage) {
-			return (await import('./tesseractjsocr').catch(() => {
-				throw new Error('tesseract.js is not installed');
-			})).tesseractBuffer(await this.toJPEG(), langs);
+			if (!OcrFactory.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
+			const ocr:OcrApi = new OcrFactory.ocrApi();
+			const result = await ocr.ocrBuffers([await this.toJPEG()], langs);
+			return result[0];
 		}
 		return '';
 	}
@@ -168,7 +172,9 @@ export class PdfPageData {
 	}
 
 	/**
-	 *
+	 * converts to a svg image
+	 * 
+	 * @returns {Promise<string>} the svg image as a {string}
 	 */
 	public async toSVG(): Promise<string> {
 		let result = '';

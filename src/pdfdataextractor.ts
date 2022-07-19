@@ -1,6 +1,7 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
 import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 import { CanvasFactory } from './canvasfactory';
+import { OcrFactory } from './ocrfactory';
 import { PdfPageData } from './pdfpagedata';
 import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, MetadataInfo, Sort } from './types';
 
@@ -124,6 +125,14 @@ export class PdfDataExtractor {
 				} catch (e) {
 					CanvasFactory.canvasApi = null;
 				}
+			}
+		}
+		if (OcrFactory.ocrApi === undefined) {
+			try {
+				require.resolve('tesseract.js');
+				OcrFactory.ocrApi = (await import('./tesseractjsocr')).TesseractJsOcr;
+			} catch (e) {
+				OcrFactory.ocrApi = null;
 			}
 		}
 		return new PdfDataExtractor(pdf_document);
