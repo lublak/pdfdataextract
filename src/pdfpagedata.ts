@@ -2,6 +2,16 @@ import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/displ
 import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
+import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
+import { SVGGraphics } from 'pdfjs-dist/legacy/build/pdf';
+
+interface SVGElementSerializer {
+	getNext(): string|null;
+}
+
+interface SVGElement {
+	getSerializer(): SVGElementSerializer;
+}
 
 /**
  * pdf data information per page
@@ -22,8 +32,7 @@ export class PdfPageData {
 		const sortOption: Sort | null = typeof sort === 'boolean' ? (sort ? Sort.ASC : null) : sort;
 		return this.page.getTextContent({
 			disableCombineTextItems: false,
-			normalizeWhitespace: false,
-			includeMarkedContent: false
+			includeMarkedContent: false,
 		}).then((textContent: TextContent)  => {
 			const items: TextItem[] = textContent.items as TextItem[];
 			/*
@@ -84,12 +93,26 @@ export class PdfPageData {
 	 * 
 	 * @param {PdfPageData} pages - the pages from which the text is to be read out
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
+	 * @param {boolean} [asFullPage=false]
 	 * @returns {Promise<string[]>} an array with text from each side
 	 */
-	public static async ocr(pages: PdfPageData[], langs: OCRLang[]): Promise<string[]> {
-		return (await import('./tesseractjsocr').catch(() => {
+	public static async ocr(pages: PdfPageData[], langs: OCRLang[], asFullPage: boolean = false): Promise<string[]> {
+		const tesseract = (await import('./tesseractjsocr').catch(() => {
 			throw new Error('tesseract.js is not installed');
-		})).tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
+		}));
+		if (asFullPage) {
+			return tesseract.tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
+		} else {
+			// TODO
+			return [];
+		}
+	}
+
+	/**
+	 *
+	 */
+	public async contentInfo(): Promise<ContentInfo[]> {
+		return new ContentInfoExtractor(this.page).getContentInfo();
 	}
 
 	/**
@@ -97,12 +120,16 @@ export class PdfPageData {
 	 * requires node-canvas/node-pureimage and tesseract.js as additional installation
 	 * 
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
+	 * @param {boolean} [asFullPage=false] - ocr the page as a whole and not individual image content (needs a canvas library)
 	 * @returns {Promise<string>} the result as text
 	 */
-	public async ocr(langs: OCRLang[]): Promise<string> {
-		return (await import('./tesseractjsocr').catch(() => {
-			throw new Error('tesseract.js is not installed');
-		})).tesseractBuffer(await this.toJPEG(), langs);
+	public async ocr(langs: OCRLang[], asFullPage: boolean = false): Promise<string> {
+		if (asFullPage) {
+			return (await import('./tesseractjsocr').catch(() => {
+				throw new Error('tesseract.js is not installed');
+			})).tesseractBuffer(await this.toJPEG(), langs);
+		}
+		return '';
 	}
 	
 	/**
@@ -138,5 +165,28 @@ export class PdfPageData {
 			canvasFactory: new CanvasFactory()
 		}).promise;
 		return canvas.toPNG();
+	}
+
+	/**
+	 *
+	 */
+	public async toSVG(): Promise<string> {
+		let result = '';
+		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const opList = await this.page.getOperatorList();
+		const svgGfx = new SVGGraphics(
+			this.page.commonObjs,
+			this.page.objs,
+			true
+		);
+		svgGfx.embedFonts = true;
+		const svg: SVGElement = await svgGfx.getSVG(opList, viewport);
+		const serializer = svg.getSerializer();
+		let chunk = serializer.getNext();
+		while (chunk != null) {
+			result += chunk;
+			chunk = serializer.getNext();
+		}
+		return result;
 	}
 }
