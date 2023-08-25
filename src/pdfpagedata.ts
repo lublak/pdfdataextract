@@ -1,4 +1,4 @@
-import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
+import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
@@ -7,7 +7,7 @@ import { SVGGraphics } from 'pdfjs-dist/legacy/build/pdf';
 import { OcrApi, OcrFactory } from './ocrfactory';
 
 interface SVGElementSerializer {
-	getNext(): string|null;
+	getNext(): string | null;
 }
 
 interface SVGElement {
@@ -21,7 +21,7 @@ export class PdfPageData {
 	/**
 	 * @internal
 	 */
-	public constructor(private page: PDFPageProxy) {}
+	public constructor(private page: PDFPageProxy) { }
 
 	/**
 	 * get the text of the page
@@ -34,7 +34,7 @@ export class PdfPageData {
 		return this.page.getTextContent({
 			disableCombineTextItems: false,
 			includeMarkedContent: false,
-		}).then((textContent: TextContent)  => {
+		}).then((textContent: TextContent) => {
 			const items: TextItem[] = textContent.items as TextItem[];
 			/*
 				transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
@@ -103,7 +103,7 @@ export class PdfPageData {
 		}));
 		if (asFullPage) {
 			if (!OcrFactory.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
-			const ocr:OcrApi = new OcrFactory.ocrApi();
+			const ocr: OcrApi = new OcrFactory.ocrApi();
 			return ocr.ocrBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
 		} else {
 			// TODO
@@ -129,13 +129,13 @@ export class PdfPageData {
 	public async ocr(langs: OCRLang[], asFullPage: boolean = false): Promise<string> {
 		if (asFullPage) {
 			if (!OcrFactory.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
-			const ocr:OcrApi = new OcrFactory.ocrApi();
+			const ocr: OcrApi = new OcrFactory.ocrApi();
 			const result = await ocr.ocrBuffers([await this.toJPEG()], langs);
 			return result[0];
 		}
 		return '';
 	}
-	
+
 	/**
 	 * converts to a jpeg image
 	 *
@@ -144,7 +144,7 @@ export class PdfPageData {
 	 */
 	public async toJPEG(quality: number = 0.8): Promise<Buffer> {
 		if (!CanvasFactory.canvasApi) throw new Error('CanvasFactory.canvasApi is not set (node-canvas or pureimage is not installed)');
-		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
 		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
 			canvasContext: canvas.createContext(),
@@ -161,7 +161,7 @@ export class PdfPageData {
 	 */
 	public async toPNG(): Promise<Buffer> {
 		if (!CanvasFactory.canvasApi) throw new Error('CanvasFactory.canvasApi is not set (node-canvas or pureimage is not installed)');
-		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
 		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
 			canvasContext: canvas.createContext(),
@@ -178,7 +178,7 @@ export class PdfPageData {
 	 */
 	public async toSVG(): Promise<string> {
 		let result = '';
-		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
 		const opList = await this.page.getOperatorList();
 		const svgGfx = new SVGGraphics(
 			this.page.commonObjs,

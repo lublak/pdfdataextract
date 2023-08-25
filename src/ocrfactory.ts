@@ -8,7 +8,7 @@ export interface OcrApi {
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
 	 * @returns {Promise<string[]>} an array with text from each side
 	 */
-   ocrBuffers(buffers: Buffer[], langs: OCRLang[]): Promise<string[]>;
+	ocrBuffers(buffers: Buffer[], langs: OCRLang[]): Promise<string[]>;
 }
 
 /**

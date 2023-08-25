@@ -42,10 +42,10 @@ interface CMap {
 interface ToUnicodeMap {
 	length: number;
 	forEach(callback: (char1: number, char2: number) => void): void;
-	get(i: number): string|undefined;
+	get(i: number): string | undefined;
 	has(i: number): boolean;
-	charCodeOf(v: number|unknown): number;
-	amend(map: number[]|string[]): void;
+	charCodeOf(v: number | unknown): number;
+	amend(map: number[] | string[]): void;
 }
 interface Font {
 	ascent: number;
@@ -129,7 +129,7 @@ interface ImageData {
  *
  */
 export class ContentInfo {
-	
+
 }
 /**
  *
@@ -138,7 +138,7 @@ export class PathInfo extends ContentInfo {
 	/**
 	 *
 	 */
-	path: ([number, number, number, number]|[number, number, number, number, number, number])[];
+	path: ([number, number, number, number] | [number, number, number, number, number, number])[];
 	/**
 	 *
 	 */
@@ -155,7 +155,7 @@ export class PathInfo extends ContentInfo {
 		 *
 		 */
 		width: number;
-	}|null;
+	} | null;
 	/**
 	 *
 	 */
@@ -164,7 +164,7 @@ export class PathInfo extends ContentInfo {
 		 *
 		 */
 		color: number;
-	}|null;
+	} | null;
 	/**
 	 * @param path
 	 * @param open
@@ -172,7 +172,7 @@ export class PathInfo extends ContentInfo {
 	 * @param fill
 	 */
 	public constructor(
-		path: ([number, number, number, number]|[number, number, number, number, number, number])[],
+		path: ([number, number, number, number] | [number, number, number, number, number, number])[],
 		open: boolean,
 		stroke: {
 			/**
@@ -183,7 +183,7 @@ export class PathInfo extends ContentInfo {
 			 *
 			 */
 			width: number;
-		}|null,
+		} | null,
 		fill: {
 			/**
 			 *
@@ -193,7 +193,7 @@ export class PathInfo extends ContentInfo {
 			 *
 			 */
 			eo: boolean;
-		}|null
+		} | null
 	) {
 		super();
 		this.path = path;
@@ -359,7 +359,7 @@ class ContentInfoExtractorState {
 	textMatrix?: [number, number, number, number, number, number];
 	textMatrixScale: number = 1;
 	fontMatrix?: [number, number, number, number, number, number];
-	path: ([number, number, number, number]|[number, number, number, number, number, number])[] = [];
+	path: ([number, number, number, number] | [number, number, number, number, number, number])[] = [];
 	pathOpen: boolean = true;
 	leading: number = 0;
 	lineX: number = 0;
@@ -403,13 +403,10 @@ export class ContentInfoExtractor {
 	 */
 	public async getContentInfo(): Promise<ContentInfo[]> {
 		const operatorList = await this.page.getOperatorList();
-		await ContentInfoExtractor.loadDependencies(this.page as unknown as { /**
-																																																																								 *
-																																																																								 */
-		commonObjs: PDFObjects; /**
-																										 *
-																										 */
-		objs: PDFObjects; }, operatorList);
+		await ContentInfoExtractor.loadDependencies(this.page as unknown as {
+			commonObjs: PDFObjects;
+			objs: PDFObjects;
+		}, operatorList);
 		this.fromOperatorList(operatorList);
 		return this.contentInfo;
 	}
@@ -417,7 +414,7 @@ export class ContentInfoExtractor {
 	private dependency(ids: string[]) {
 		// its loaded all together with loadDependencies
 	}
-	
+
 	private setLineWidth(width: number) {
 		this.state.lineWidth = width;
 	}
@@ -426,7 +423,7 @@ export class ContentInfoExtractor {
 	}
 	private setLineJoin(lineJoin: LineJoin) {
 		this.state.lineJoin = lineJoin;
-	} 
+	}
 	private setMiterLimit(miterLimit: number) {
 		this.state.miterLimit = miterLimit;
 	}
@@ -638,7 +635,7 @@ export class ContentInfoExtractor {
 		}
 	}
 	private setTextRenderingMode(mode: TextRenderingMode) {
-		this.state.textRenderingMode	= mode;
+		this.state.textRenderingMode = mode;
 	}
 	private setTextRise(rise: number) {
 		this.state.textRise = rise;
@@ -661,7 +658,7 @@ export class ContentInfoExtractor {
 	private nextLine() {
 		this.moveText(0, this.state.leading);
 	}
-	private showText(glyphs: (null|number|Glyph)[]) {
+	private showText(glyphs: (null | number | Glyph)[]) {
 		const font = this.state.font;
 		if (font == null) return;
 		const fontSize = this.state.fontSize;
@@ -669,7 +666,7 @@ export class ContentInfoExtractor {
 		const charSpacing = this.state.charSpacing;
 		const wordSpacing = this.state.wordSpacing;
 		const fontDirection = this.state.fontDirection;
-		
+
 		const hScale = this.state.hScale * fontDirection;
 		const vertical = font.vertical;
 		const spacingDir = vertical ? 1 : -1;
@@ -708,7 +705,7 @@ export class ContentInfoExtractor {
 					// TODO
 					textContent += character;
 				} else {
-					
+
 				}
 
 				let charWidth;
@@ -727,9 +724,8 @@ export class ContentInfoExtractor {
 		} else {
 			this.state.x += x * hScale;
 		}
-		
 	}
-	private showSpacedText(glyphs: (null|number|Glyph)[]) {
+	private showSpacedText(glyphs: (null | number | Glyph)[]) {
 		// not used
 	}
 	private nextLineShowText(glyphs: (number | Glyph | null)[]) {
@@ -818,7 +814,7 @@ export class ContentInfoExtractor {
 	private endCompat() {
 		// not used
 	}
-	private paintFormXObjectBegin(matrix: [number, number, number, number, number, number]|unknown, bbox: [number, number, number, number]) {
+	private paintFormXObjectBegin(matrix: [number, number, number, number, number, number] | unknown, bbox: [number, number, number, number]) {
 	}
 	private paintFormXObjectEnd() {
 	}
@@ -860,7 +856,7 @@ export class ContentInfoExtractor {
 	}
 	private constructPath(ops: number[], args: unknown[]) {
 		if (!this.state.pathOpen) this.state.path = [];
-		const path: ([number, number, number, number]|[number, number, number, number, number, number])[] = this.state.path;
+		const path: ([number, number, number, number] | [number, number, number, number, number, number])[] = this.state.path;
 		let x: number = 0;
 		let y: number = 0;
 		for (let i = 0, a = 0; i < ops.length; i++) {
@@ -943,7 +939,7 @@ export class ContentInfoExtractor {
 		}
 		return Promise.all(dependencies);
 	}
-	
+
 	private fromOperatorList(operatorList: PDFOperatorList) {
 		const mapping: unknown[] = [];
 		for (const t of Object.keys(OPS)) {

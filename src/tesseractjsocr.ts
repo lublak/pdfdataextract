@@ -3,6 +3,9 @@ import { createScheduler, createWorker, RecognizeResult, Scheduler, Worker } fro
 import { OcrApi } from './ocrfactory';
 import { OCRLang } from './types';
 
+/**
+ *
+ */
 export class TesseractJsOcr implements OcrApi {
 	/**
 	 * recognize characters of buffers
@@ -12,9 +15,14 @@ export class TesseractJsOcr implements OcrApi {
 	 * @returns {Promise<string[]>} an array with text from each side
 	 */
 
+	/**
+	 *
+	 * @param buffers
+	 * @param langs
+	 */
 	async ocrBuffers(buffers: Buffer[], langs: OCRLang[]): Promise<string[]> {
-		if(buffers.length == 0) return [];
-		if(buffers.length == 1) {
+		if (buffers.length == 0) return [];
+		if (buffers.length == 1) {
 			const lang: string = langs.join('+');
 			const worker: Worker = createWorker();
 			await worker.load();

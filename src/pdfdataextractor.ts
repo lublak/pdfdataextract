@@ -49,14 +49,14 @@ function parseRemoteUrlDest(remoteUrlDest: string) {
 		if (Array.isArray(remoteDest) && Number.isInteger(remoteDest[0])) {
 			return remoteDest[0];
 		}
-	} catch {}
+	} catch { }
 	return undefined;
 }
 
 async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutline[], cache: { [key: string]: number; }) {
 	const outline: Outline[] = [];
 	for (const o of outlineData) {
-		const dest: unknown = typeof(o.dest) === 'string' ? await pdf_document.getDestination(o.dest) : o.dest;
+		const dest: unknown = typeof (o.dest) === 'string' ? await pdf_document.getDestination(o.dest) : o.dest;
 		if (dest == null) {
 			if (o.unsafeUrl != null) {
 				if (o.url == null) {
@@ -98,7 +98,7 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
  * the extractor for the data of the pdf
  */
 export class PdfDataExtractor {
-	private constructor(private readonly pdf_document: PDFDocumentProxy) {}
+	private constructor(private readonly pdf_document: PDFDocumentProxy) { }
 
 	/**
 	 * get the extractor for the data
@@ -155,7 +155,7 @@ export class PdfDataExtractor {
 	get pages(): number {
 		return this.pdf_document.numPages;
 	}
-	
+
 	/**
 	 * get the permission flags
 	 *
@@ -184,7 +184,7 @@ export class PdfDataExtractor {
 	 * @param {boolean|Sort} [sort=false] - sort the text by text coordinates
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
-	async getText(pages?: number | number[] | ((pageNumber: number) => boolean), sort: boolean|Sort = false): Promise<string[]> {
+	async getText(pages?: number | number[] | ((pageNumber: number) => boolean), sort: boolean | Sort = false): Promise<string[]> {
 		return Promise.all((await this.getPageData(pages)).map(async (page: PdfPageData | null) => page == null ? '' : page.toText(sort)));
 	}
 
@@ -196,8 +196,8 @@ export class PdfDataExtractor {
 	 *     or a filter function (return true to parse the page)
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
-	async getPageData(pages?: number | number[] | ((pageNumber: number) => boolean)): Promise<(PdfPageData|null)[]> {
-		const page_array: (PdfPageData|null)[] = [];
+	async getPageData(pages?: number | number[] | ((pageNumber: number) => boolean)): Promise<(PdfPageData | null)[]> {
+		const page_array: (PdfPageData | null)[] = [];
 		const numPages: number = this.pdf_document.numPages;
 
 		if (pages === undefined) {
@@ -205,14 +205,14 @@ export class PdfDataExtractor {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
 				page_array.push(page == null ? null : new PdfPageData(page));
 			}
-		} else if (typeof(pages) === 'number') {
+		} else if (typeof (pages) === 'number') {
 			const counter: number = pages > numPages ? numPages : pages;
-			
+
 			for (let pageNumber: number = 1; pageNumber <= counter; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
 				page_array.push(page == null ? null : new PdfPageData(page));
 			}
-		} else if (typeof(pages) === 'function') {
+		} else if (typeof (pages) === 'function') {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				if (pages(pageNumber)) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);

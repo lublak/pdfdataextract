@@ -514,7 +514,7 @@ export interface Metadata {
 	 * 
 	 * @returns {Object<string, string | string[] | undefined>} all data
 	 */
-	getAll(): {[key: string]: string | string[] | undefined};
+	getAll(): { [key: string]: string | string[] | undefined };
 	/**
 	 * check whether data with the name are available
 	 * 
@@ -687,7 +687,7 @@ export class UrlOutline implements Outline {
 		readonly url: string,
 		readonly absolute: boolean,
 		readonly childs?: readonly Outline[],
-	) {}
+	) { }
 }
 
 
@@ -704,7 +704,7 @@ export class PageNumberOutline implements Outline {
 		readonly title: string,
 		readonly page: number,
 		readonly childs?: readonly Outline[],
-	) {}
+	) { }
 }
 
 /**
@@ -722,5 +722,5 @@ export class PdfReferenceOutline implements Outline {
 		readonly url: string,
 		readonly page?: number,
 		readonly childs?: readonly Outline[],
-	) {}
+	) { }
 }
