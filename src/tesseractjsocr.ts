@@ -24,10 +24,7 @@ export class TesseractJsOcr implements OcrApi {
 		if (buffers.length == 0) return [];
 		if (buffers.length == 1) {
 			const lang: string = langs.join('+');
-			const worker: Worker = createWorker();
-			await worker.load();
-			await worker.loadLanguage(lang);
-			await worker.initialize(lang);
+			const worker: Worker = await createWorker(lang);
 			const data: RecognizeResult = await worker.recognize(buffers[0]);
 			await worker.terminate();
 			return [data.data.text];
@@ -35,10 +32,7 @@ export class TesseractJsOcr implements OcrApi {
 		const lang: string = langs.join('+');
 		const scheduler: Scheduler = createScheduler();
 		for (let i: number = 0; i < buffers.length; i++) {
-			const worker: Worker = createWorker();
-			await worker.load();
-			await worker.loadLanguage(lang);
-			await worker.initialize(lang);
+			const worker: Worker = await createWorker(lang);
 			scheduler.addWorker(worker);
 		}
 		const result: RecognizeResult[] = await Promise.all(buffers.map(async (buffer: Buffer) => scheduler.addJob('recognize', buffer))) as RecognizeResult[];
