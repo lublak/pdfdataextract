@@ -3,7 +3,6 @@ import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
 import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
-import { SVGGraphics } from 'pdfjs-dist/types/src/pdf';
 import { OcrApi, OcrFactory } from './ocrfactory';
 
 interface SVGElementSerializer {
@@ -149,7 +148,6 @@ export class PdfPageData {
 		await this.page.render({
 			canvasContext: canvas.createContext(),
 			viewport: viewport,
-			canvasFactory: new CanvasFactory()
 		}).promise;
 		return canvas.toJPEG(quality);
 	}
@@ -166,33 +164,7 @@ export class PdfPageData {
 		await this.page.render({
 			canvasContext: canvas.createContext(),
 			viewport: viewport,
-			canvasFactory: new CanvasFactory()
 		}).promise;
 		return canvas.toPNG();
-	}
-
-	/**
-	 * converts to a svg image
-	 * 
-	 * @returns {Promise<string>} the svg image as a {string}
-	 */
-	public async toSVG(): Promise<string> {
-		let result = '';
-		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
-		const opList = await this.page.getOperatorList();
-		const svgGfx = new SVGGraphics(
-			this.page.commonObjs,
-			this.page.objs,
-			true
-		);
-		svgGfx.embedFonts = true;
-		const svg: SVGElement = await svgGfx.getSVG(opList, viewport);
-		const serializer = svg.getSerializer();
-		let chunk = serializer.getNext();
-		while (chunk != null) {
-			result += chunk;
-			chunk = serializer.getNext();
-		}
-		return result;
 	}
 }

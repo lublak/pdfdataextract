@@ -1,4 +1,4 @@
-import { OPS } from 'pdfjs-dist/legacy/build/pdf';
+import { OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { PDFOperatorList, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 
 interface Glyph {
@@ -821,10 +821,6 @@ export class ContentInfoExtractor {
 	private beginGroup() {
 	}
 	private endGroup() {
-	}
-	private beginAnnotation() {
-	}
-	private endAnnotation() {
 	}
 	private beginAnnotation() {
 	}

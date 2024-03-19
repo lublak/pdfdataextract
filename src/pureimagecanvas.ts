@@ -15,7 +15,7 @@ export class PureimageCanvas implements CanvasApi {
 	 * @internal
 	 */
 	public constructor(width: number, height: number) {
-		this.bitmap = make(width, height, null);
+		this.bitmap = make(width, height);
 	}
 	/**
 	 * @internal
@@ -40,7 +40,7 @@ export class PureimageCanvas implements CanvasApi {
 	/**
 	 * @internal
 	 */
-	public createContext(): object {
+	public createContext(): CanvasRenderingContext2D {
 		return this.bitmap.getContext('2d');
 	}
 	/**

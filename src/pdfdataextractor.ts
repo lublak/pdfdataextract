@@ -1,4 +1,4 @@
-import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf';
+import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 import { CanvasFactory } from './canvasfactory';
 import { OcrFactory } from './ocrfactory';
