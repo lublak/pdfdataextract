@@ -113,6 +113,7 @@ export class PdfDataExtractor {
 			password: options.password,
 			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
 			isEvalSupported: false,
+			canvasFactory: new CanvasFactory()
 		}).promise;
 		if (CanvasFactory.canvasApi === undefined) {
 			try {

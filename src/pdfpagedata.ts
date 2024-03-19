@@ -5,14 +5,6 @@ import { CanvasApi, CanvasFactory } from './canvasfactory';
 import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
 import { OcrApi, OcrFactory } from './ocrfactory';
 
-interface SVGElementSerializer {
-	getNext(): string | null;
-}
-
-interface SVGElement {
-	getSerializer(): SVGElementSerializer;
-}
-
 /**
  * pdf data information per page
  */

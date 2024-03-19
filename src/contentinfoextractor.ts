@@ -1185,12 +1185,6 @@ export class ContentInfoExtractor {
 			case OPS.endAnnotation:
 				this.endAnnotation();
 				break;
-			case OPS.beginAnnotation:
-				this.beginAnnotation();
-				break;
-			case OPS.endAnnotation:
-				this.endAnnotation();
-				break;
 				//case OPS.paintJpegXObject:
 				//	this.paintJpegXObject();
 				//	break;
