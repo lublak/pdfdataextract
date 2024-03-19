@@ -3,7 +3,7 @@ import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
 import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
-import { SVGGraphics } from 'pdfjs-dist/legacy/build/pdf';
+import { SVGGraphics } from 'pdfjs-dist/types/src/pdf';
 import { OcrApi, OcrFactory } from './ocrfactory';
 
 interface SVGElementSerializer {
@@ -32,7 +32,7 @@ export class PdfPageData {
 	public async toText(sort: boolean | Sort = false): Promise<string> {
 		const sortOption: Sort | null = typeof sort === 'boolean' ? (sort ? Sort.ASC : null) : sort;
 		return this.page.getTextContent({
-			disableCombineTextItems: false,
+			disableNormalization: false,
 			includeMarkedContent: false,
 		}).then((textContent: TextContent) => {
 			const items: TextItem[] = textContent.items as TextItem[];

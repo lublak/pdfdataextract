@@ -822,9 +822,9 @@ export class ContentInfoExtractor {
 	}
 	private endGroup() {
 	}
-	private beginAnnotations() {
+	private beginAnnotation() {
 	}
-	private endAnnotations() {
+	private endAnnotation() {
 	}
 	private beginAnnotation() {
 	}
@@ -1183,11 +1183,11 @@ export class ContentInfoExtractor {
 			case OPS.endGroup:
 				this.endGroup();
 				break;
-			case OPS.beginAnnotations:
-				this.beginAnnotations();
+			case OPS.beginAnnotation:
+				this.beginAnnotation();
 				break;
-			case OPS.endAnnotations:
-				this.endAnnotations();
+			case OPS.endAnnotation:
+				this.endAnnotation();
 				break;
 			case OPS.beginAnnotation:
 				this.beginAnnotation();
