@@ -6,7 +6,8 @@
 
 Extract data from a pdf with pure javascript.
 
-Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmaintained.
+The PdfData wrapper over PdfDataExtractor is inspired by https://www.npmjs.com/package/pdf-parse, which is currently unmaintained.
+PdfDataExtractor itself is a simple interface to extract individual data from a pdf file.
 
 ## Install
 
@@ -17,6 +18,8 @@ Inspered by https://www.npmjs.com/package/pdf-parse, which is currently unmainta
 Full documentation is available at the [wiki](https://github.com/lublak/pdfdataextract/wiki)
 
 ## Usage
+
+PdfData is a wrapper around PdfDataExtractor to directly get a complete json structure.
 
 ```ts
 import { PdfData, VerbosityLevel } from 'pdfdataextract';
@@ -89,11 +92,6 @@ PdfDataExtractor.get(file_data, {
 ## Test
 
 `npm test`
-
-## Maybe TODOs
-
-- [ ] try to find the line number of the outline
-- [ ] create pdf-dist-es5 builds (seprated repo)
 
 ## License
 

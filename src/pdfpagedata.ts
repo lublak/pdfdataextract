@@ -1,7 +1,9 @@
-import {  PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
+import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/display/api';
 import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasFactory } from './canvasfactory';
+import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
+import { OcrApi, OcrFactory } from './ocrfactory';
 
 /**
  * pdf data information per page
@@ -10,7 +12,7 @@ export class PdfPageData {
 	/**
 	 * @internal
 	 */
-	public constructor(private page: PDFPageProxy) {}
+	public constructor(private page: PDFPageProxy) { }
 
 	/**
 	 * get the text of the page
@@ -21,10 +23,9 @@ export class PdfPageData {
 	public async toText(sort: boolean | Sort = false): Promise<string> {
 		const sortOption: Sort | null = typeof sort === 'boolean' ? (sort ? Sort.ASC : null) : sort;
 		return this.page.getTextContent({
-			disableCombineTextItems: false,
-			normalizeWhitespace: false,
-			includeMarkedContent: false
-		}).then((textContent: TextContent)  => {
+			disableNormalization: false,
+			includeMarkedContent: false,
+		}).then((textContent: TextContent) => {
 			const items: TextItem[] = textContent.items as TextItem[];
 			/*
 				transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
@@ -84,12 +85,28 @@ export class PdfPageData {
 	 * 
 	 * @param {PdfPageData} pages - the pages from which the text is to be read out
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
+	 * @param {boolean} [asFullPage=false]
 	 * @returns {Promise<string[]>} an array with text from each side
 	 */
-	public static async ocr(pages: PdfPageData[], langs: OCRLang[]): Promise<string[]> {
-		return (await import('./tesseractjsocr').catch(() => {
+	public static async ocr(pages: PdfPageData[], langs: OCRLang[], asFullPage: boolean = false): Promise<string[]> {
+		const tesseract = (await import('./tesseractjsocr').catch(() => {
 			throw new Error('tesseract.js is not installed');
-		})).tesseractBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
+		}));
+		if (asFullPage) {
+			if (!OcrFactory.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
+			const ocr: OcrApi = new OcrFactory.ocrApi();
+			return ocr.ocrBuffers(await Promise.all(pages.map((page: PdfPageData) => page.toJPEG())), langs);
+		} else {
+			// TODO
+			return [];
+		}
+	}
+
+	/**
+	 *
+	 */
+	public async contentInfo(): Promise<ContentInfo[]> {
+		return new ContentInfoExtractor(this.page).getContentInfo();
 	}
 
 	/**
@@ -97,14 +114,19 @@ export class PdfPageData {
 	 * requires node-canvas/node-pureimage and tesseract.js as additional installation
 	 * 
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
+	 * @param {boolean} [asFullPage=false] - ocr the page as a whole and not individual image content (needs a canvas library)
 	 * @returns {Promise<string>} the result as text
 	 */
-	public async ocr(langs: OCRLang[]): Promise<string> {
-		return (await import('./tesseractjsocr').catch(() => {
-			throw new Error('tesseract.js is not installed');
-		})).tesseractBuffer(await this.toJPEG(), langs);
+	public async ocr(langs: OCRLang[], asFullPage: boolean = false): Promise<string> {
+		if (asFullPage) {
+			if (!OcrFactory.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
+			const ocr: OcrApi = new OcrFactory.ocrApi();
+			const result = await ocr.ocrBuffers([await this.toJPEG()], langs);
+			return result[0];
+		}
+		return '';
 	}
-	
+
 	/**
 	 * converts to a jpeg image
 	 *
@@ -113,12 +135,11 @@ export class PdfPageData {
 	 */
 	public async toJPEG(quality: number = 0.8): Promise<Buffer> {
 		if (!CanvasFactory.canvasApi) throw new Error('CanvasFactory.canvasApi is not set (node-canvas or pureimage is not installed)');
-		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
 		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
 			canvasContext: canvas.createContext(),
 			viewport: viewport,
-			canvasFactory: new CanvasFactory()
 		}).promise;
 		return canvas.toJPEG(quality);
 	}
@@ -130,12 +151,11 @@ export class PdfPageData {
 	 */
 	public async toPNG(): Promise<Buffer> {
 		if (!CanvasFactory.canvasApi) throw new Error('CanvasFactory.canvasApi is not set (node-canvas or pureimage is not installed)');
-		const viewport: PageViewport = this.page.getViewport({scale: 1.0});
+		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
 		const canvas: CanvasApi = new CanvasFactory.canvasApi(viewport.width, viewport.height);
 		await this.page.render({
 			canvasContext: canvas.createContext(),
 			viewport: viewport,
-			canvasFactory: new CanvasFactory()
 		}).promise;
 		return canvas.toPNG();
 	}

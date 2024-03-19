@@ -1,4 +1,4 @@
-import { VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/legacy/build/pdf';
+import { VerbosityLevel as RawVerbosityLevel } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 export enum VerbosityLevel {
 	/**
@@ -514,7 +514,7 @@ export interface Metadata {
 	 * 
 	 * @returns {Object<string, string | string[] | undefined>} all data
 	 */
-	getAll(): {[key: string]: string | string[] | undefined};
+	getAll(): { [key: string]: string | string[] | undefined };
 	/**
 	 * check whether data with the name are available
 	 * 
@@ -613,42 +613,42 @@ export interface Info {
 	 * @readonly
 	 * @type {string | undefined}
 	 */
-	readonly PDFFormatVersion: string,
+	readonly PDFFormatVersion?: string,
 	/**
 	 * if it is linearized
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsLinearized: boolean,
+	readonly IsLinearized?: boolean,
 	/**
 	 * if acro form is present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsAcroFormPresent: boolean
+	readonly IsAcroFormPresent?: boolean
 	/**
 	 * if xfa form is present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsXFAPresent: boolean,
+	readonly IsXFAPresent?: boolean,
 	/**
 	 * if collection is present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsCollectionPresent: boolean,
+	readonly IsCollectionPresent?: boolean,
 	/**
 	 * if signatures are present
 	 * 
 	 * @readonly
 	 * @type {boolean | undefined}
 	 */
-	readonly IsSignaturesPresent: boolean,
+	readonly IsSignaturesPresent?: boolean,
 	readonly [key: string]: string | number | boolean | Name | undefined,
 }
 
@@ -687,7 +687,7 @@ export class UrlOutline implements Outline {
 		readonly url: string,
 		readonly absolute: boolean,
 		readonly childs?: readonly Outline[],
-	) {}
+	) { }
 }
 
 
@@ -704,7 +704,7 @@ export class PageNumberOutline implements Outline {
 		readonly title: string,
 		readonly page: number,
 		readonly childs?: readonly Outline[],
-	) {}
+	) { }
 }
 
 /**
@@ -722,5 +722,5 @@ export class PdfReferenceOutline implements Outline {
 		readonly url: string,
 		readonly page?: number,
 		readonly childs?: readonly Outline[],
-	) {}
+	) { }
 }

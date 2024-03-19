@@ -4,7 +4,7 @@ export interface CanvasApi {
 	 * 
 	 * @returns canvas 2d context
 	 */
-	createContext(): object;
+	createContext(): CanvasRenderingContext2D;
 	/**
 	 * resets the canvas to the give size
 	 * 
@@ -36,7 +36,7 @@ export interface CanvasApi {
  */
 export class CanvasFactory {
 	/**
-	 * the class to create the canvasapi defaults to pureimage or if installed node-canvas
+	 * the class to create the {CanvasApi} defaults to node-canvas or pureimage if installed
 	 */
 	static canvasApi?: { new(width: number, height: number): CanvasApi } | null;
 	/**
@@ -44,7 +44,7 @@ export class CanvasFactory {
 	 */
 	public reset(canvasAndContext: {
 		canvas: CanvasApi | null,
-		context: object | null
+		context: CanvasRenderingContext2D | null
 	}, width: number, height: number): void {
 		if (!canvasAndContext.canvas) throw new Error('Canvas is not specified');
 		if (width <= 0 || height <= 0) throw new Error('Invalid canvas size');
@@ -55,7 +55,7 @@ export class CanvasFactory {
 	 */
 	public destroy(canvasAndContext: {
 		canvas: CanvasApi | null,
-		context: object | null
+		context: CanvasRenderingContext2D | null
 	}): void {
 		if (!canvasAndContext.canvas) throw new Error('Canvas is not specified');
 		canvasAndContext.canvas.destroy();

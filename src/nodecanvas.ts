@@ -32,8 +32,8 @@ export class NodeCanvas implements CanvasApi {
 	/**
 	 * @internal
 	 */
-	public createContext(): object {
-		return this.canvas.getContext('2d');
+	public createContext(): CanvasRenderingContext2D {
+		return this.canvas.getContext('2d') as any as CanvasRenderingContext2D;
 	}
 	/**
 	 * @internal
