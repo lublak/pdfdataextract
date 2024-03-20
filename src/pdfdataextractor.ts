@@ -113,9 +113,9 @@ export class PdfDataExtractor {
 			password: options.password,
 			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
 			isEvalSupported: false,
-			canvasFactory: new CanvasFactory()
+			canvasFactory: new CanvasFactory(),
 		}).promise;
-		if (CanvasFactory.canvasApi === undefined) {
+		if (CanvasFactory.canvasApi === null) {
 			try {
 				require.resolve('canvas');
 				CanvasFactory.canvasApi = (await import('./nodecanvas')).NodeCanvas;
@@ -128,7 +128,7 @@ export class PdfDataExtractor {
 				}
 			}
 		}
-		if (OcrFactory.ocrApi === undefined) {
+		if (OcrFactory.ocrApi === null) {
 			try {
 				require.resolve('tesseract.js');
 				OcrFactory.ocrApi = (await import('./tesseractjsocr')).TesseractJsOcr;

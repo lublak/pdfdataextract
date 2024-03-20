@@ -38,7 +38,7 @@ export class CanvasFactory {
 	/**
 	 * the class to create the {CanvasApi} defaults to node-canvas or pureimage if installed
 	 */
-	static canvasApi?: { new(width: number, height: number): CanvasApi } | null;
+	static canvasApi: { new(width: number, height: number): CanvasApi } | null = null;
 	/**
 	 * @internal
 	 */
