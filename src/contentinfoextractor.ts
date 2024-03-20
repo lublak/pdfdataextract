@@ -1185,9 +1185,6 @@ export class ContentInfoExtractor {
 			case OPS.endAnnotation:
 				this.endAnnotation();
 				break;
-				//case OPS.paintJpegXObject:
-				//	this.paintJpegXObject();
-				//	break;
 			case OPS.paintImageMaskXObject:
 				this.paintImageMaskXObject();
 				break;
