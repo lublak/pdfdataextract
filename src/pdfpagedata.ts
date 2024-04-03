@@ -28,7 +28,7 @@ export class PdfPageData {
 		}).then((textContent: TextContent) => {
 			const items: TextItem[] = textContent.items as TextItem[];
 			/*
-				transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x, offset y]
+				transform is a array with a transform matrix [scale x,shear x,shear y,scale y,offset x,offset y]
 			
 				0,1         1,1
 				  -----------
