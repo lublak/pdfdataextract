@@ -61,5 +61,8 @@
     "url": "git+https://github.com/lublak/pdfdataextract.git"
   },
   "author": "lublak",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
 }
