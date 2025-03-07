@@ -3,7 +3,7 @@ import { encodeJPEGToStream, encodePNGToStream, make } from 'pureimage';
 //@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { Bitmap } from 'pureimage/types/bitmap';
 import { PassThrough } from 'stream';
-import { CanvasApi } from './canvasfactory';
+import { CanvasApi } from './canvasapi';
 
 /**
  * default implementation for pureimage
@@ -15,7 +15,7 @@ export class PureimageCanvas implements CanvasApi {
 	 * @internal
 	 */
 	public constructor(width: number, height: number) {
-		this.bitmap = make(width, height, null);
+		this.bitmap = make(width, height);
 	}
 	/**
 	 * @internal
@@ -30,7 +30,7 @@ export class PureimageCanvas implements CanvasApi {
 	/**
 	 * @internal
 	 */
-	public async toJPEG(quality: number): Promise<Buffer> {
+	public async toJPEG(quality?: number): Promise<Buffer> {
 		const result: Uint8Array[] = [];
 		const stream: PassThrough = new PassThrough();
 		stream.on('data', (data: Uint8Array) => result.push(data));
@@ -40,7 +40,7 @@ export class PureimageCanvas implements CanvasApi {
 	/**
 	 * @internal
 	 */
-	public createContext(): object {
+	public createContext(): CanvasRenderingContext2D {
 		return this.bitmap.getContext('2d');
 	}
 	/**

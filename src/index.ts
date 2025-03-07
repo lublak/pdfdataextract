@@ -10,9 +10,14 @@ import {
 } from './pdfdataextractor';
 
 import {
-	CanvasFactory,
-	CanvasApi
-} from './canvasfactory';
+	CanvasApiConstructor,
+	CanvasApi,
+} from './canvasapi';
+
+import {
+	OcrApiConstructor,
+	OcrApi,
+} from './ocrapi';
 
 import {
 	VerbosityLevel,
@@ -34,8 +39,11 @@ export {
 	PdfDataExtractor,
 	PdfDataExtractorOptions,
 
-	CanvasFactory,
+	CanvasApiConstructor,
 	CanvasApi,
+
+	OcrApiConstructor,
+	OcrApi,
 
 	VerbosityLevel,
 	Permissions,
