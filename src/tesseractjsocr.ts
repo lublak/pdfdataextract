@@ -1,6 +1,6 @@
 //@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { createScheduler, createWorker, RecognizeResult, Scheduler, Worker } from 'tesseract.js';
-import { OcrApi } from './ocrfactory';
+import { OcrApi } from './ocrapi';
 import { OCRLang } from './types';
 
 /**

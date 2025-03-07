@@ -440,58 +440,60 @@ export class ContentInfoExtractor {
 	private setGState(states: [[string, unknown]]) {
 		for (const [key, value] of states) {
 			switch (key) {
-			case 'LW':
-				this.setLineWidth(value as number);
-				break;
-			case 'LC':
-				this.setLineCap(value as LineCap);
-				break;
-			case 'LJ':
-				this.setLineJoin(value as LineJoin);
-				break;
-			case 'ML':
-				this.setMiterLimit(value as number);
-				break;
-			case 'D':
-				const d = value as [number[], number];
-				this.setDash(d[0], d[1]);
-				break;
+				case 'LW':
+					this.setLineWidth(value as number);
+					break;
+				case 'LC':
+					this.setLineCap(value as LineCap);
+					break;
+				case 'LJ':
+					this.setLineJoin(value as LineJoin);
+					break;
+				case 'ML':
+					this.setMiterLimit(value as number);
+					break;
+				case 'D':
+					const d = value as [number[], number];
+					this.setDash(d[0], d[1]);
+					break;
 				//case 'RI':
 				//	this.setRenderingIntent(value as boolean);
 				//	break;
 				//case 'FL':
 				//	this.setFlatness(value as boolean);
 				//	break;
-			case 'Font':
-				const f = value as [string, number];
-				this.setFont(f[0], f[1]);
-				break;
-			case 'CA':
-				this.setStrokeAlpha(value as number);
-				break;
-			case 'ca':
-				this.setFillAlpha(value as number);
-				break;
-			case 'BM':
-				break;
-			case 'SMask':
-				break;
-			case 'TR':
-				break;
-			case 'OP':
-			case 'op':
-			case 'OPM':
-			case 'BG':
-			case 'BG2':
-			case 'UCR':
-			case 'UCR2':
-			case 'TR2':
-			case 'HT':
-			case 'SM':
-			case 'SA':
-			case 'AIS':
-			case 'TK':
-				break;
+				case 'Font':
+					const f = value as [string, number];
+					this.setFont(f[0], f[1]);
+					break;
+				case 'CA':
+					this.setStrokeAlpha(value as number);
+					break;
+				case 'ca':
+					this.setFillAlpha(value as number);
+					break;
+				case 'BM':
+					this.setBlendMode(value as GlobalCompositeOperation);
+					break;
+				case 'SMask':
+					this.setSMask(value as boolean);
+					break;
+				case 'TR':
+					break;
+				case 'OP':
+				case 'op':
+				case 'OPM':
+				case 'BG':
+				case 'BG2':
+				case 'UCR':
+				case 'UCR2':
+				case 'TR2':
+				case 'HT':
+				case 'SM':
+				case 'SA':
+				case 'AIS':
+				case 'TK':
+					break;
 			}
 		}
 	}
@@ -826,9 +828,6 @@ export class ContentInfoExtractor {
 	}
 	private endAnnotation() {
 	}
-	private paintJpegXObject() {
-		// not used
-	}
 	private paintImageMaskXObject() {
 	}
 	private paintImageMaskXObjectGroup() {
@@ -857,60 +856,68 @@ export class ContentInfoExtractor {
 		let y: number = 0;
 		for (let i = 0, a = 0; i < ops.length; i++) {
 			switch (ops[i]) {
-			case OPS.moveTo: {
-				x = args[a++] as number;
-				y = args[a++] as number;
-				break;
-			}
-			case OPS.lineTo: {
-				path.push([x, y, args[a++] as number, args[a++] as number]);
-				break;
-			}
-			case OPS.curveTo: {
-				const cp1x = args[a++] as number;
-				const cp1y = args[a++] as number;
-				const cp2x = args[a++] as number;
-				const cp2y = args[a++] as number;
-				x = args[a++] as number;
-				y = args[a++] as number;
-				path.push([cp1x, cp1y, cp2x, cp2y, x, y]);
-				break;
-			}
-			case OPS.curveTo2: {
-				const cp2x = args[a++] as number;
-				const cp2y = args[a++] as number;
-				x = args[a++] as number;
-				y = args[a++] as number;
-				path.push([x, y, cp2x, cp2y, x, y]);
-				break;
-			}
-			case OPS.curveTo3: {
-				const cp1x = args[a++] as number;
-				const cp1y = args[a++] as number;
-				x = args[a++] as number;
-				y = args[a++] as number;
-				path.push([cp1x, cp1y, x, y, x, y]);
-				break;
-			}
-			case OPS.closePath:
-				if (path.length > 0) {
-					this.state.pathOpen = false;
+				case OPS.moveTo: {
+					x = args[a++] as number;
+					y = args[a++] as number;
+					break;
 				}
-				break;
-			case OPS.rectangle:
-				x = args[a++] as number;
-				y = args[a++] as number;
-				const width = args[a++] as number;
-				const height = args[a++] as number;
-				const xwidth = x + width;
-				const yheight = y + height;
-				path.push([x, y, xwidth, y]);
-				path.push([xwidth, y, xwidth, yheight]);
-				path.push([xwidth, yheight, x, yheight]);
-				path.push([x, yheight, x, y]);
-				break;
+				case OPS.lineTo: {
+					path.push([x, y, args[a++] as number, args[a++] as number]);
+					break;
+				}
+				case OPS.curveTo: {
+					const cp1x = args[a++] as number;
+					const cp1y = args[a++] as number;
+					const cp2x = args[a++] as number;
+					const cp2y = args[a++] as number;
+					x = args[a++] as number;
+					y = args[a++] as number;
+					path.push([cp1x, cp1y, cp2x, cp2y, x, y]);
+					break;
+				}
+				case OPS.curveTo2: {
+					const cp2x = args[a++] as number;
+					const cp2y = args[a++] as number;
+					x = args[a++] as number;
+					y = args[a++] as number;
+					path.push([x, y, cp2x, cp2y, x, y]);
+					break;
+				}
+				case OPS.curveTo3: {
+					const cp1x = args[a++] as number;
+					const cp1y = args[a++] as number;
+					x = args[a++] as number;
+					y = args[a++] as number;
+					path.push([cp1x, cp1y, x, y, x, y]);
+					break;
+				}
+				case OPS.closePath:
+					if (path.length > 0) {
+						this.state.pathOpen = false;
+					}
+					break;
+				case OPS.rectangle:
+					x = args[a++] as number;
+					y = args[a++] as number;
+					const width = args[a++] as number;
+					const height = args[a++] as number;
+					const xwidth = x + width;
+					const yheight = y + height;
+					path.push([x, y, xwidth, y]);
+					path.push([xwidth, y, xwidth, yheight]);
+					path.push([xwidth, yheight, x, yheight]);
+					path.push([x, yheight, x, y]);
+					break;
 			}
 		}
+	}
+
+	private setStrokeTransparent() {
+
+	}
+
+	private setFillTransparent() {
+
 	}
 
 	private static async loadDependencies(data: {
@@ -948,42 +955,42 @@ export class ContentInfoExtractor {
 		for (let i = 0; i < operatorList.fnArray.length; i++) {
 			const args = operatorList.argsArray[i];
 			switch (operatorList.fnArray[i]) {
-			//case OPS.dependency:
-			//	this.dependency(args);
-			//	break;
-			case OPS.setLineWidth:
-				this.setLineWidth(args[0]);
-				break;
-			case OPS.setLineCap:
-				this.setLineCap(args[0]);
-				break;
-			case OPS.setLineJoin:
-				this.setLineJoin(args[0]);
-				break;
-			case OPS.setMiterLimit:
-				this.setMiterLimit(args[0]);
-				break;
-			case OPS.setDash:
-				this.setDash(args[0], args[1]);
-				break;
+				//case OPS.dependency:
+				//	this.dependency(args);
+				//	break;
+				case OPS.setLineWidth:
+					this.setLineWidth(args[0]);
+					break;
+				case OPS.setLineCap:
+					this.setLineCap(args[0]);
+					break;
+				case OPS.setLineJoin:
+					this.setLineJoin(args[0]);
+					break;
+				case OPS.setMiterLimit:
+					this.setMiterLimit(args[0]);
+					break;
+				case OPS.setDash:
+					this.setDash(args[0], args[1]);
+					break;
 				//case OPS.setRenderingIntent:
 				//	this.setRenderingIntent(args[0]);
 				//	break;
 				//case OPS.setFlatness:
 				//	this.setFlatness(args[0]);
 				//	break;
-			case OPS.setGState:
-				this.setGState(args[0]);
-				break;
-			case OPS.save:
-				this.save();
-				break;
-			case OPS.restore:
-				this.restore();
-				break;
-			case OPS.transform:
-				this.transform(args[0], args[1], args[2], args[3], args[4], args[5]);
-				break;
+				case OPS.setGState:
+					this.setGState(args[0]);
+					break;
+				case OPS.save:
+					this.save();
+					break;
+				case OPS.restore:
+					this.restore();
+					break;
+				case OPS.transform:
+					this.transform(args[0], args[1], args[2], args[3], args[4], args[5]);
+					break;
 				//case OPS.moveTo:
 				//	this.moveTo(args[0], args[1]);
 				//	break;
@@ -1005,81 +1012,81 @@ export class ContentInfoExtractor {
 				//case OPS.rectangle:
 				//	this.rectangle(args[0], args[1], args[2], args[3]);
 				//	break;
-			case OPS.stroke:
-				this.stroke();
-				break;
-			case OPS.closeStroke:
-				this.closeStroke();
-				break;
-			case OPS.fill:
-				this.fill();
-				break;
-			case OPS.eoFill:
-				this.eoFill();
-				break;
-			case OPS.fillStroke:
-				this.fillStroke();
-				break;
-			case OPS.eoFillStroke:
-				this.eoFillStroke();
-				break;
-			case OPS.closeFillStroke:
-				this.closeFillStroke();
-				break;
-			case OPS.closeEOFillStroke:
-				this.closeEOFillStroke();
-				break;
-			case OPS.endPath:
-				this.endPath();
-				break;
-			case OPS.clip:
-				this.clip();
-				break;
-			case OPS.eoClip:
-				this.eoClip();
-				break;
-			case OPS.beginText:
-				this.beginText();
-				break;
-			case OPS.endText:
-				this.endText();
-				break;
-			case OPS.setCharSpacing:
-				this.setCharSpacing(args[0]);
-				break;
-			case OPS.setWordSpacing:
-				this.setWordSpacing(args[0]);
-				break;
-			case OPS.setHScale:
-				this.setHScale(args[0]);
-				break;
-			case OPS.setLeading:
-				this.setLeading(args);
-				break;
-			case OPS.setFont:
-				this.setFont(args[0], args[1]);
-				break;
-			case OPS.setTextRenderingMode:
-				this.setTextRenderingMode(args[0]);
-				break;
-			case OPS.setTextRise:
-				this.setTextRise(args[0]);
-				break;
-			case OPS.moveText:
-				this.moveText(args[0], args[1]);
-				break;
-			case OPS.setLeadingMoveText:
-				this.setLeadingMoveText(args[0], args[1]);
-				break;
-			case OPS.setTextMatrix:
-				this.setTextMatrix(args[0], args[1], args[2], args[3], args[4], args[5]);
-				break;
-			case OPS.nextLine:
-				this.nextLine();
-				break;
-			case OPS.showText:
-				this.showText(args[0]);
-				break;
+				case OPS.stroke:
+					this.stroke();
+					break;
+				case OPS.closeStroke:
+					this.closeStroke();
+					break;
+				case OPS.fill:
+					this.fill();
+					break;
+				case OPS.eoFill:
+					this.eoFill();
+					break;
+				case OPS.fillStroke:
+					this.fillStroke();
+					break;
+				case OPS.eoFillStroke:
+					this.eoFillStroke();
+					break;
+				case OPS.closeFillStroke:
+					this.closeFillStroke();
+					break;
+				case OPS.closeEOFillStroke:
+					this.closeEOFillStroke();
+					break;
+				case OPS.endPath:
+					this.endPath();
+					break;
+				case OPS.clip:
+					this.clip();
+					break;
+				case OPS.eoClip:
+					this.eoClip();
+					break;
+				case OPS.beginText:
+					this.beginText();
+					break;
+				case OPS.endText:
+					this.endText();
+					break;
+				case OPS.setCharSpacing:
+					this.setCharSpacing(args[0]);
+					break;
+				case OPS.setWordSpacing:
+					this.setWordSpacing(args[0]);
+					break;
+				case OPS.setHScale:
+					this.setHScale(args[0]);
+					break;
+				case OPS.setLeading:
+					this.setLeading(args);
+					break;
+				case OPS.setFont:
+					this.setFont(args[0], args[1]);
+					break;
+				case OPS.setTextRenderingMode:
+					this.setTextRenderingMode(args[0]);
+					break;
+				case OPS.setTextRise:
+					this.setTextRise(args[0]);
+					break;
+				case OPS.moveText:
+					this.moveText(args[0], args[1]);
+					break;
+				case OPS.setLeadingMoveText:
+					this.setLeadingMoveText(args[0], args[1]);
+					break;
+				case OPS.setTextMatrix:
+					this.setTextMatrix(args[0], args[1], args[2], args[3], args[4], args[5]);
+					break;
+				case OPS.nextLine:
+					this.nextLine();
+					break;
+				case OPS.showText:
+					this.showText(args[0]);
+					break;
 				//case OPS.showSpacedText:
 				//	this.showSpacedText(args[0]);
 				//	break;
@@ -1092,9 +1099,9 @@ export class ContentInfoExtractor {
 				//case OPS.setCharWidth:
 				//	this.setCharWidth(args[0], args[1]);
 				//	break;
-			case OPS.setCharWidthAndBounds:
-				this.setCharWidthAndBounds(args[0], args[1], args[2], args[3], args[4], args[5]);
-				break;
+				case OPS.setCharWidthAndBounds:
+					this.setCharWidthAndBounds(args[0], args[1], args[2], args[3], args[4], args[5]);
+					break;
 				//case OPS.setStrokeColorSpace:
 				//	this.setStrokeColorSpace();
 				//	break;
@@ -1119,21 +1126,21 @@ export class ContentInfoExtractor {
 				//case OPS.setFillGray:
 				//	this.setFillGray(args[0]);
 				//	break;
-			case OPS.setStrokeRGBColor:
-				this.setStrokeRGBColor(args[0], args[1], args[2]);
-				break;
-			case OPS.setFillRGBColor:
-				this.setFillRGBColor(args[0], args[1], args[2]);
-				break;
+				case OPS.setStrokeRGBColor:
+					this.setStrokeRGBColor(args[0], args[1], args[2]);
+					break;
+				case OPS.setFillRGBColor:
+					this.setFillRGBColor(args[0], args[1], args[2]);
+					break;
 				//case OPS.setStrokeCMYKColor:
 				//	this.setStrokeCMYKColor(args[0], args[1], args[2], args[3]);
 				//	break;
 				//case OPS.setFillCMYKColor:
 				//	this.setFillCMYKColor(args[0], args[1], args[2], args[3]);
 				//	break;
-			case OPS.shadingFill:
-				this.shadingFill(args[0]);
-				break;
+				case OPS.shadingFill:
+					this.shadingFill(args[0]);
+					break;
 				//case OPS.beginInlineImage:
 				//	this.beginInlineImage();
 				//	break;
@@ -1152,48 +1159,48 @@ export class ContentInfoExtractor {
 				//case OPS.markPointProps:
 				//	this.markPointProps();
 				//	break;
-			case OPS.beginMarkedContent:
-				this.beginMarkedContent();
-				break;
-			case OPS.beginMarkedContentProps:
-				this.beginMarkedContentProps();
-				break;
-			case OPS.endMarkedContent:
-				this.endMarkedContent();
-				break;
+				case OPS.beginMarkedContent:
+					this.beginMarkedContent();
+					break;
+				case OPS.beginMarkedContentProps:
+					this.beginMarkedContentProps();
+					break;
+				case OPS.endMarkedContent:
+					this.endMarkedContent();
+					break;
 				//case OPS.beginCompat:
 				//	this.beginCompat();
 				//	break;
 				//case OPS.endCompat:
 				//	this.endCompat();
 				//	break;
-			case OPS.paintFormXObjectBegin:
-				this.paintFormXObjectBegin(args[0], args[1]);
-				break;
-			case OPS.paintFormXObjectEnd:
-				this.paintFormXObjectEnd();
-				break;
-			case OPS.beginGroup:
-				this.beginGroup();
-				break;
-			case OPS.endGroup:
-				this.endGroup();
-				break;
-			case OPS.beginAnnotation:
-				this.beginAnnotation();
-				break;
-			case OPS.endAnnotation:
-				this.endAnnotation();
-				break;
-			case OPS.paintImageMaskXObject:
-				this.paintImageMaskXObject();
-				break;
-			case OPS.paintImageMaskXObjectGroup:
-				this.paintImageMaskXObjectGroup();
-				break;
-			case OPS.paintImageXObject:
-				this.paintImageXObject(args[0]);
-				break;
+				case OPS.paintFormXObjectBegin:
+					this.paintFormXObjectBegin(args[0], args[1]);
+					break;
+				case OPS.paintFormXObjectEnd:
+					this.paintFormXObjectEnd();
+					break;
+				case OPS.beginGroup:
+					this.beginGroup();
+					break;
+				case OPS.endGroup:
+					this.endGroup();
+					break;
+				case OPS.beginAnnotation:
+					this.beginAnnotation();
+					break;
+				case OPS.endAnnotation:
+					this.endAnnotation();
+					break;
+				case OPS.paintImageMaskXObject:
+					this.paintImageMaskXObject();
+					break;
+				case OPS.paintImageMaskXObjectGroup:
+					this.paintImageMaskXObjectGroup();
+					break;
+				case OPS.paintImageXObject:
+					this.paintImageXObject(args[0]);
+					break;
 				//case OPS.paintInlineImageXObject:
 				//	this.paintInlineImageXObject(args[0]);
 				//	break;
@@ -1206,15 +1213,18 @@ export class ContentInfoExtractor {
 				//case OPS.paintImageMaskXObjectRepeat:
 				//	this.paintImageMaskXObjectRepeat();
 				//	break;
-			case OPS.paintSolidColorImageMask:
-				this.paintSolidColorImageMask();
-				break;
-			case OPS.constructPath:
-				this.constructPath(args[0], args[1]);
-				break;
-				//case 92: // group
-				//	this.group()
-				break;
+				case OPS.paintSolidColorImageMask:
+					this.paintSolidColorImageMask();
+					break;
+				case OPS.constructPath:
+					this.constructPath(args[0], args[1]);
+					break;
+				case OPS.setStrokeTransparent:
+					this.setStrokeTransparent();
+					break;
+				case OPS.setFillTransparent:
+					this.setFillTransparent();
+					break;
 			}
 		}
 	}

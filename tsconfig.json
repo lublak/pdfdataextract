@@ -16,8 +16,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"declaration": true,
 		"types": [
-			"node",
-			"jest"
+			"node"
 		],
 		"sourceMap": true
 	},
@@ -25,7 +24,7 @@
 		"src/**/*.ts"
 	],
 	"exclude": [
-		"node_modules", 
+		"node_modules",
 		"**/*.spec.ts"
 	]
 }

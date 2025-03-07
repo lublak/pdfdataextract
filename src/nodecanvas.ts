@@ -1,7 +1,7 @@
 //@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
 import { Canvas, createCanvas, JpegConfig } from 'canvas';
 import { promisify } from 'util';
-import { CanvasApi } from './canvasfactory';
+import { CanvasApi } from './canvasapi';
 
 /**
  * default implementation for node-canvas
@@ -24,7 +24,7 @@ export class NodeCanvas implements CanvasApi {
 	/**
 	 * @internal
 	 */
-	public toJPEG(quality: number): Promise<Buffer> {
+	public toJPEG(quality?: number): Promise<Buffer> {
 		return promisify<'image/jpeg', JpegConfig, Buffer>(this.canvas.toBuffer)('image/jpeg', {
 			quality: quality
 		});

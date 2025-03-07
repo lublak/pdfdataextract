@@ -1,11 +1,12 @@
 const PDF_TEST_FILE = './test/specific_pages.pdf';
 
 import { PdfDataExtractor, VerbosityLevel } from '../src';
-import { readFileSync} from 'fs';
+import { readFileSync } from 'fs';
+import { test, describe, expect } from 'vitest';
 
 describe(`parse ${PDF_TEST_FILE}`, () => {
 	const buffer = readFileSync(PDF_TEST_FILE);
-	it('extract specific pages', async () => {
+	test('extract specific pages', async () => {
 		const extractor = await PdfDataExtractor.get(buffer, {
 			verbosity: VerbosityLevel.ERRORS,
 		});

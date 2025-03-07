@@ -1,7 +1,7 @@
 import { getDocument, PermissionFlag } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
-import { CanvasFactory } from './canvasfactory';
-import { OcrFactory } from './ocrfactory';
+import { CanvasApi, CanvasApiConstructor } from './canvasapi';
+import { OcrApi, OcrApiConstructor } from './ocrapi';
 import { PdfPageData } from './pdfpagedata';
 import { VerbosityLevel, Permissions, Outline, PageNumberOutline, UrlOutline, PdfReferenceOutline, MetadataInfo, Sort } from './types';
 
@@ -18,6 +18,18 @@ export type PdfDataExtractorOptions = {
 	 * @type {VerbosityLevel}
 	 */
 	verbosity?: VerbosityLevel,
+	/**
+	 * the canvas api used for rendering
+	 * 
+	 * @type {CanvasApiConstructor}
+	 */
+	canvasApi?: CanvasApiConstructor<CanvasApi>,
+	/**
+	 * the ocr api used for text detection
+	 * 
+	 * @type {OcrApiConstructor}
+	 */
+	ocrApi?: OcrApiConstructor<OcrApi>,
 }
 
 interface RawOutline {
@@ -94,11 +106,43 @@ async function parseOutline(pdf_document: PDFDocumentProxy, outlineData: RawOutl
 	return outline;
 }
 
+async function getInstalledCanvasApi(): Promise<CanvasApiConstructor<CanvasApi> | null> {
+	try {
+		require.resolve('canvas');
+		return (await import('./nodecanvas')).NodeCanvas;
+	} catch (e) {
+
+	}
+	try {
+		require.resolve('@napi-rs/canvas');
+		return (await import('./nodeskiacanvas')).NodeSkiaCanvas;
+	} catch (e) {
+
+	}
+	try {
+		require.resolve('pureimage');
+		return (await import('./pureimagecanvas')).PureimageCanvas;
+	} catch (e) { }
+	return null;
+}
+
+async function getInstalledOcrApi(): Promise<OcrApiConstructor<OcrApi> | null> {
+	try {
+		require.resolve('tesseract.js');
+		return (await import('./tesseractjsocr')).TesseractJsOcr;
+	} catch (e) { }
+	return null;
+}
+
 /**
  * the extractor for the data of the pdf
  */
 export class PdfDataExtractor {
-	private constructor(private readonly pdf_document: PDFDocumentProxy) { }
+	private constructor(
+		private readonly pdf_document: PDFDocumentProxy,
+		private readonly canvasApi: CanvasApiConstructor<CanvasApi> | null,
+		private readonly ocrApi: OcrApiConstructor<OcrApi> | null,
+	) { }
 
 	/**
 	 * get the extractor for the data
@@ -108,43 +152,24 @@ export class PdfDataExtractor {
 	 * @returns {Promise<PdfDataExtractor>} a promise that is resolved with a {PdfDataExtractor} object to pull the extracted data from
 	 */
 	static async get(data: Uint8Array, options: PdfDataExtractorOptions = {}): Promise<PdfDataExtractor> {
+		if (data instanceof Buffer) {
+			data = new Uint8Array(data);
+		}
 		const pdf_document: PDFDocumentProxy = await getDocument({
 			data: data,
 			password: options.password,
 			verbosity: options.verbosity ?? VerbosityLevel.ERRORS,
 			isEvalSupported: false,
-			canvasFactory: new CanvasFactory(),
 		}).promise;
-		if (CanvasFactory.canvasApi === null) {
-			try {
-				require.resolve('canvas');
-				CanvasFactory.canvasApi = (await import('./nodecanvas')).NodeCanvas;
-			} catch (e) {
-				try {
-					require.resolve('pureimage');
-					CanvasFactory.canvasApi = (await import('./pureimagecanvas')).PureimageCanvas;
-				} catch (e) {
-					CanvasFactory.canvasApi = null;
-				}
-			}
-		}
-		if (OcrFactory.ocrApi === null) {
-			try {
-				require.resolve('tesseract.js');
-				OcrFactory.ocrApi = (await import('./tesseractjsocr')).TesseractJsOcr;
-			} catch (e) {
-				OcrFactory.ocrApi = null;
-			}
-		}
-		return new PdfDataExtractor(pdf_document);
+		return new PdfDataExtractor(pdf_document, options.canvasApi ?? await getInstalledCanvasApi(), options.ocrApi ?? await getInstalledOcrApi());
 	}
 
 	/**
 	 * get the fingerprint
 	 * 
-	 * @returns {string} the fingerprint
+	 * @returns {string | null} the fingerprint
 	 */
-	get fingerprint(): string {
+	get fingerprint(): string | null {
 		return this.pdf_document.fingerprints[0];
 	}
 
@@ -204,20 +229,20 @@ export class PdfDataExtractor {
 		if (pages === undefined) {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : new PdfPageData(page));
+				page_array.push(page == null ? null : new PdfPageData(page, this.canvasApi, this.ocrApi));
 			}
 		} else if (typeof (pages) === 'number') {
 			const counter: number = pages > numPages ? numPages : pages;
 
 			for (let pageNumber: number = 1; pageNumber <= counter; pageNumber++) {
 				const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-				page_array.push(page == null ? null : new PdfPageData(page));
+				page_array.push(page == null ? null : new PdfPageData(page, this.canvasApi, this.ocrApi));
 			}
 		} else if (typeof (pages) === 'function') {
 			for (let pageNumber: number = 1; pageNumber <= numPages; pageNumber++) {
 				if (pages(pageNumber)) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : new PdfPageData(page));
+					page_array.push(page == null ? null : new PdfPageData(page, this.canvasApi, this.ocrApi));
 				}
 			}
 		} else {
@@ -225,7 +250,7 @@ export class PdfDataExtractor {
 			for (const pageNumber of pages) {
 				if (pageNumber <= numPages) {
 					const page: PDFPageProxy | null = await this.pdf_document.getPage(pageNumber).catch(() => null);
-					page_array.push(page == null ? null : new PdfPageData(page));
+					page_array.push(page == null ? null : new PdfPageData(page, this.canvasApi, this.ocrApi));
 				}
 			}
 		}
