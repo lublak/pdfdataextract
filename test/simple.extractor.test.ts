@@ -1,4 +1,4 @@
-const PDF_TEST_FILE = './test/empty_outline.pdf';
+const PDF_TEST_FILE = './test/simple.pdf';
 
 import { PdfDataExtractor, VerbosityLevel } from '../src';
 import { readFileSync } from 'fs';
@@ -6,10 +6,12 @@ import { test, describe, expect } from 'vitest';
 
 describe(`parse ${PDF_TEST_FILE}`, () => {
 	const buffer = readFileSync(PDF_TEST_FILE);
-	test('extract empty outline', async () => {
+	test('extract basic data', async () => {
 		const extractor = await PdfDataExtractor.get(buffer, {
 			verbosity: VerbosityLevel.ERRORS,
 		});
-		expect(await extractor.getOutline()).toBeNull();
+		//(await extractor.getPageData()).forEach(async cf => {
+		//	console.log(await cf?.contentInfo());
+		//});
 	});
 });

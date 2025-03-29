@@ -1,12 +1,11 @@
 //@ts-ignore: ignore import errors because its dynamicly loaded from pdfdataextractor
-import { Canvas, createCanvas, JpegConfig } from 'canvas';
-import { promisify } from 'util';
+import { Canvas, createCanvas } from '@napi-rs/canvas';
 import { CanvasApi } from './canvasapi';
 
 /**
- * implementation for node-canvas
+ * implementation for node-skia
  */
-export class NodeCanvas implements CanvasApi {
+export class NodeSkiaCanvas implements CanvasApi {
 	private canvas: Canvas;
 	/**
 	 * @internal
@@ -18,15 +17,13 @@ export class NodeCanvas implements CanvasApi {
 	 * @internal
 	 */
 	public toPNG(): Promise<Buffer> {
-		return promisify<'image/png', Buffer>(this.canvas.toBuffer)('image/png');
+		return this.canvas.encode('png');
 	}
 	/**
 	 * @internal
 	 */
 	public toJPEG(quality?: number): Promise<Buffer> {
-		return promisify<'image/jpeg', JpegConfig, Buffer>(this.canvas.toBuffer)('image/jpeg', {
-			quality: quality
-		});
+		return this.canvas.encode('jpeg', quality);
 	}
 	/**
 	 * @internal
@@ -48,5 +45,4 @@ export class NodeCanvas implements CanvasApi {
 		this.canvas.width = 0;
 		this.canvas.height = 0;
 	}
-
 }
