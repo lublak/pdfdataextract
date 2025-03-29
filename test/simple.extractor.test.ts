@@ -10,8 +10,8 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
 		const extractor = await PdfDataExtractor.get(buffer, {
 			verbosity: VerbosityLevel.ERRORS,
 		});
-		(await extractor.getPageData()).forEach(async cf => {
-			console.log(await cf?.contentInfo());
-		});
+		//(await extractor.getPageData()).forEach(async cf => {
+		//	console.log(await cf?.contentInfo());
+		//});
 	});
 });

@@ -19,8 +19,8 @@ describe(`parse ${PDF_TEST_FILE}`, () => {
 		if (data.text) {
 			expect(data.text.length).toEqual(2);
 			const first_page_lines = data.text[0].split('\n');
-			//expect(first_page_lines.length).toEqual(35);
-			//expect(first_page_lines[10]).toMatch(/^dapibus mattis/);
+			expect(first_page_lines.length).toEqual(31);
+			expect(first_page_lines[7]).toMatch(/^dapibus mattis/);
 		}
 		expect(data.permissions).not.toBeNull();
 		if (data.permissions) {

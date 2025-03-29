@@ -2,7 +2,6 @@ import { PDFPageProxy, TextContent, TextItem } from 'pdfjs-dist/types/src/displa
 import { OCRLang, Sort } from './types';
 import { PageViewport } from 'pdfjs-dist/types/src/display/display_utils';
 import { CanvasApi, CanvasApiConstructor } from './canvasapi';
-import { ContentInfo, ContentInfoExtractor } from './contentinfoextractor';
 import { OcrApi, OcrApiConstructor } from './ocrapi';
 
 /**
@@ -81,13 +80,6 @@ export class PdfPageData {
 			}
 			return text;
 		}, () => '');
-	}
-
-	/**
-	 *
-	 */
-	public async contentInfo(): Promise<ContentInfo[]> {
-		return new ContentInfoExtractor(this.page).getContentInfo();
 	}
 
 	/**
