@@ -110,19 +110,15 @@ async function getInstalledCanvasApi(): Promise<CanvasApiConstructor<CanvasApi> 
 	try {
 		require.resolve('canvas');
 		return (await import('./nodecanvas')).NodeCanvas;
-	} catch (e) {
-
-	}
+	} catch (_e) { }
 	try {
 		require.resolve('@napi-rs/canvas');
 		return (await import('./nodeskiacanvas')).NodeSkiaCanvas;
-	} catch (e) {
-
-	}
+	} catch (_e) { }
 	try {
 		require.resolve('pureimage');
 		return (await import('./pureimagecanvas')).PureimageCanvas;
-	} catch (e) { }
+	} catch (_e) { }
 	return null;
 }
 
@@ -130,7 +126,7 @@ async function getInstalledOcrApi(): Promise<OcrApiConstructor<OcrApi> | null> {
 	try {
 		require.resolve('tesseract.js');
 		return (await import('./tesseractjsocr')).TesseractJsOcr;
-	} catch (e) { }
+	} catch (_e) { }
 	return null;
 }
 
@@ -205,8 +201,8 @@ export class PdfDataExtractor {
 	 * get the text
 	 * 
 	 * @param {number|number[]|((pageNumber: number) => boolean)} [pages] - can either be the number of pages to be read,
-	 *     a number array with the specific pages (sorted by page number)
-	 *     or a filter function (return true to parse the page)
+	 * a number array with the specific pages (sorted by page number)
+	 * or a filter function (return true to parse the page)
 	 * @param {boolean|Sort} [sort=false] - sort the text by text coordinates
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
@@ -218,8 +214,8 @@ export class PdfDataExtractor {
 	 * get the text
 	 * 
 	 * @param {number|number[]|((pageNumber: number) => boolean)} [pages] - can either be the number of pages to be read,
-	 *     a number array with the specific pages (sorted by page number)
-	 *     or a filter function (return true to parse the page)
+	 * a number array with the specific pages (sorted by page number)
+	 * or a filter function (return true to parse the page)
 	 * @returns {Promise<string[]>} a promise that is resolved with a {string[]} array with the extracted text per page
 	 */
 	async getPageData(pages?: number | number[] | ((pageNumber: number) => boolean)): Promise<(PdfPageData | null)[]> {

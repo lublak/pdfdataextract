@@ -4,8 +4,7 @@ import { promisify } from 'util';
 import { CanvasApi } from './canvasapi';
 
 /**
- * default implementation for node-canvas
- * look at the {CanvasApi} doc
+ * implementation for node-canvas
  */
 export class NodeCanvas implements CanvasApi {
 	private canvas: Canvas;
@@ -33,7 +32,7 @@ export class NodeCanvas implements CanvasApi {
 	 * @internal
 	 */
 	public createContext(): CanvasRenderingContext2D {
-		return this.canvas.getContext('2d') as any as CanvasRenderingContext2D;
+		return this.canvas.getContext('2d') as unknown as CanvasRenderingContext2D;
 	}
 	/**
 	 * @internal

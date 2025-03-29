@@ -4,7 +4,7 @@ import { OcrApi } from './ocrapi';
 import { OCRLang } from './types';
 
 /**
- *
+ * implementation for tesseractjs
  */
 export class TesseractJsOcr implements OcrApi {
 	/**
@@ -13,12 +13,6 @@ export class TesseractJsOcr implements OcrApi {
 	 * @param {Buffer[]} buffers - the image buffers
 	 * @param {OCRLang[]} langs - the language traineddata used for recognition
 	 * @returns {Promise<string[]>} an array with text from each side
-	 */
-
-	/**
-	 *
-	 * @param buffers
-	 * @param langs
 	 */
 	async ocrBuffers(buffers: Buffer[], langs: OCRLang[]): Promise<string[]> {
 		if (buffers.length == 0) return [];

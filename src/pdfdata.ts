@@ -170,7 +170,6 @@ export class PdfData {
 
 		if (!options.get) options.get = {};
 
-		// eslint-disable-next-line deprecation/deprecation
 		const pages: number | number[] | ((pageNumber: number) => boolean) | undefined = options.pages ? options.pages : options.max;
 
 		let metadata: Metadata | null = null;

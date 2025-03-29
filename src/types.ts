@@ -512,7 +512,7 @@ export interface Metadata {
 	/**
 	 * get all data
 	 * 
-	 * @returns {Object<string, string | string[] | undefined>} all data
+	 * @returns {{ [key: string]: string | string[] | undefined }} all data
 	 */
 	getAll(): { [key: string]: string | string[] | undefined };
 	/**

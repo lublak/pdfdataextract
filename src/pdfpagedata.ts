@@ -92,18 +92,19 @@ export class PdfPageData {
 	public async ocr(langs: OCRLang[]): Promise<string> {
 		if (!this.ocrApi) throw new Error('OcrFactory.ocrApi is not set (tesseractjs)');
 		const ocr: OcrApi = new this.ocrApi();
-		const result = await ocr.ocrBuffers([await this.toJPEG()], langs);
+		const result: string[] = await ocr.ocrBuffers([await this.toJPEG()], langs);
 		return result[0];
 	}
 
 	/**
 	 * creates a canvas and renders 
 	 *
+	 * @param {T} canvasApi - the canvas api that is used to create the canvas
 	 * @returns {Promise<T>} the canvas
 	 */
 	public async toCanvasApi<T extends CanvasApi>(canvasApi: CanvasApiConstructor<T>): Promise<T> {
 		const viewport: PageViewport = this.page.getViewport({ scale: 1.0 });
-		const canvas = new canvasApi(viewport.width, viewport.height);
+		const canvas: T = new canvasApi(viewport.width, viewport.height);
 		await this.page.render({
 			canvasContext: canvas.createContext(),
 			viewport: viewport,
@@ -132,6 +133,10 @@ export class PdfPageData {
 		return (await this.toCanvasApi(this.canvasApi)).toPNG();
 	}
 
+	/**
+	 * close the page data
+	 * @returns {boolean} — if close was successfully
+	 */
 	public close(): boolean {
 		return this.page.cleanup();
 	}
